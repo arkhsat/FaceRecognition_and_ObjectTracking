@@ -11,8 +11,7 @@ from firebase_admin import storage
 
 cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred, {
-    'databaseURL': "https://testing1-5b399-default-rtdb.firebaseio.com/",
-    'storageBucket': "testing1-5b399.appspot.com"
+    
 })
 
 
@@ -39,18 +38,6 @@ def findencodigs (imageslist):
 
     for img in imageslist:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #from BGR TO RGB
-
-        #print(img.dtype)
-
-        # Verify image shape
-        #print(img.shape)
-
-        # Check image values range
-        #print(img.min(), img.max())
-
-        #plt.imshow(img)
-        #plt.show()
-
         encode = face_recognition.face_encodings(img)[0]
         encodelist.append(encode)
         #print(encode)

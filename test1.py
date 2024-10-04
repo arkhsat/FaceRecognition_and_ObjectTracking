@@ -15,8 +15,8 @@ from displaycapture import display_image_from_url
 # Firebase setup
 cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred, {
-    'databaseURL': "https://testing1-5b399-default-rtdb.firebaseio.com/",
-    'storageBucket': "testing1-5b399.appspot.com"
+    'databaseURL': "",
+    'storageBucket': ""
 })
 
 # Webcam setup

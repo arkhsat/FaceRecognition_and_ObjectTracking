@@ -12,8 +12,8 @@ from firebase_admin import storage
 
 cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred, {
-    'databaseURL': "https://testing1-5b399-default-rtdb.firebaseio.com/",
-    'storageBucket': "testing1-5b399.appspot.com"
+    'databaseURL': "",
+    'storageBucket': ""
 })
 
 

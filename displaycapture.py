@@ -1,12 +1,8 @@
-import urllib.request
-import numpy as np
-import cv2
-import ssl
-import requests
-import certifi
 from PIL import Image
 import requests
 import io
+import certifi
+
 
 def display_image_from_url(image_url):
     try:

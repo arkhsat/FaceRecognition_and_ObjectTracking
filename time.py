@@ -1,5 +1,6 @@
 from datetime import datetime
 from firebase_admin import db
+from capture import capture_and_upload
 
 
 # Variable For left warning
@@ -270,6 +271,7 @@ def total_time(tracked_id, schedule_start_time, schedule_end_time):
 
 def save_time_to_db(person_id, scheduled_duration, late_time, total, outside):
     try:
+        # time, time_range = capture_and_upload(img, person_id, event)
         # Save the event details to the Firebase database
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         db.reference(f'time/{current_time}/{person_id}').set({
@@ -277,9 +279,8 @@ def save_time_to_db(person_id, scheduled_duration, late_time, total, outside):
             'Duration': scheduled_duration,
             'Late': late_time,
             'left': outside,
-            # 'Total_time': total
+            'Total_time': total
         })
         print(f"Saved total time for person {person_id} to database.")
     except Exception as e:
         print(f"Error saving total time to database: {e}")
-

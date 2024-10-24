@@ -40,7 +40,8 @@ previous_capture_status = {}
 # Trackers
 trackers = []
 tracked_ids = []
-# person_exit_time = {}  # Store exit time for each person
+# Status tracking
+is_tracking = False
 
 
 # Load encoding file
@@ -124,16 +125,14 @@ def stop_tracking(person_id):
 # Main loop
 while True:
     success, img = cap.read()
-    # Line for ROI?
-    # cv2.line(img, (LEFT_ZONE, 0), (LEFT_ZONE, img.shape[0]), (0, 0, 255), 2)
     time_box = datetime.now().strftime("%Y/%m/%d - %H:%M:%S")
-    # cv2.putText(img, f'{time_box}', (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
     cvzone.putTextRect(
         img, f'{time_box}', (10, 30),
         scale=1, thickness=2, colorR=(0, 0, 0),
         font=cv2.FONT_HERSHEY_SIMPLEX,
         offset=10,
     )
+  # Line for ROI
     cv2.line(img, (RIGHT_ZONE, 0), (RIGHT_ZONE, img.shape[0]), (255, 0, 255), 2)  # right zone is exit
 
     # If trackers exist, update them
@@ -143,6 +142,10 @@ while True:
             if success:
                 x, y, w, h = [int(v) for v in bbox]
                 if x + w < RIGHT_ZONE:
+                    if not is_tracking:
+                        is_tracking = True  # Start tracking
+                        print(f"Tracking started for ID: {tracked_id}")
+
                     cvzone.cornerRect(img, (x, y, w, h), rt=1, colorC=(255, 0, 0))  # blue for tracked faces
                     cvzone.putTextRect(img, f'ID: {tracked_id}', (x, y - 25), scale=1, thickness=2, colorR=(255, 0, 0))
                     cvzone.putTextRect(img, f'Tracking', (x, y - 50), scale=1, thickness=2, colorR=(255, 0, 0))
@@ -157,6 +160,7 @@ while True:
                         scheduled_start_time, scheduled_end_time = is_scheduled(tracked_id)
                         count_left_time(tracked_id)
                         reset_exit_timer(tracked_id)
+                        is_tracking = True
 
                     # elif previous_capture_status.get(tracked_id) != 'entered' and
                     # not previous_capture_status.get(tracked_id) == "return":
@@ -171,16 +175,18 @@ while True:
                         count_late_time(tracked_id, scheduled_start_time)
 
                 elif x + w > RIGHT_ZONE:
-                    # if previous_capture_status.get(tracked_id) != 'left' and
-                    # previous_capture_status.get(tracked_id) == 'return' or 'entered':
-                    if previous_capture_status.get(tracked_id) != 'left' and previous_capture_status.get(
-                            tracked_id) in ['return', 'entered']:
-                        # calculate_total_time_outside(tracked_id)
-                        image_url = capture_and_upload(img, tracked_id, 'left')
-                        previous_capture_status[tracked_id] = 'left'
-                        display_image_from_url(image_url)
-                        # Start the timer for left the room
-                        start_left_timer(tracked_id)
+                    if is_tracking:
+                        # if previous_capture_status.get(tracked_id) != 'left' and
+                        # previous_capture_status.get(tracked_id) == 'return' or 'entered':
+                        if previous_capture_status.get(tracked_id) != 'left' and previous_capture_status.get(
+                                tracked_id) in ['return', 'entered']:
+                            # calculate_total_time_outside(tracked_id)
+                            image_url = capture_and_upload(img, tracked_id, 'left')
+                            previous_capture_status[tracked_id] = 'left'
+                            display_image_from_url(image_url)
+                            # Start the timer for left the room
+                            start_left_timer(tracked_id)
+                            is_tracking = False
 
             else:
                 # Remove the tracker if it fails
@@ -202,7 +208,7 @@ while True:
                 start_late_timer(person_id, scheduled_start_time)
 
     for encodeFace, faceLoc in zip(encodeCurFrame, faceCurFrame):
-        matches = face_recognition.compare_faces(encodeListKnow, encodeFace)
+        matches = face_recognition.compare_faces(encodeListKnow, encodeFace, tolerance=0.5)
         faceDis = face_recognition.face_distance(encodeListKnow, encodeFace)
         matchIndex = np.argmin(faceDis)
 
@@ -213,9 +219,10 @@ while True:
             getId = id[matchIndex]
             if is_scheduled(str(getId)):  # Only allow detection if the person is scheduled
 
-                if getId not in tracked_ids:
+                # if getId not in tracked_ids:
+                # if not is_tracking and (x1 + (x2 - x1) < RIGHT_ZONE):
+                if getId not in tracked_ids and (x1 + (x2 - x1) < RIGHT_ZONE):
                     # New person detected, start tracking
-
                     cvzone.cornerRect(img, (x1, y1, x2 - x1, y2 - y1), rt=1, colorC=(0, 255, 0))  # Green recognition
 
                     # Initialize tracker for this person

@@ -125,14 +125,16 @@ def stop_tracking(person_id):
 # Main loop
 while True:
     success, img = cap.read()
+    # Line for ROI?
+    # cv2.line(img, (LEFT_ZONE, 0), (LEFT_ZONE, img.shape[0]), (0, 0, 255), 2)
     time_box = datetime.now().strftime("%Y/%m/%d - %H:%M:%S")
+    # cv2.putText(img, f'{time_box}', (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
     cvzone.putTextRect(
         img, f'{time_box}', (10, 30),
         scale=1, thickness=2, colorR=(0, 0, 0),
         font=cv2.FONT_HERSHEY_SIMPLEX,
         offset=10,
     )
-  # Line for ROI
     cv2.line(img, (RIGHT_ZONE, 0), (RIGHT_ZONE, img.shape[0]), (255, 0, 255), 2)  # right zone is exit
 
     # If trackers exist, update them
@@ -201,7 +203,7 @@ while True:
 
     if len(faceCurFrame) == 0:
         # If no faces are detected for 10 minutes, trigger late timer
-        for person_id in encodeListKnowWithIds[1]:
+        for person_id in encodeListKnowWithIds[-1]:
             schedule_times = is_scheduled(person_id)
             if schedule_times:
                 scheduled_start_time, scheduled_end_time = schedule_times
@@ -215,13 +217,13 @@ while True:
         y1, x2, y2, x1 = faceLoc
         y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4  # Scale up the face location
 
-        if matches[matchIndex]:
+        if matches[matchIndex] and (x1 + (x2 - x1) < RIGHT_ZONE):
             getId = id[matchIndex]
             if is_scheduled(str(getId)):  # Only allow detection if the person is scheduled
 
                 # if getId not in tracked_ids:
                 # if not is_tracking and (x1 + (x2 - x1) < RIGHT_ZONE):
-                if getId not in tracked_ids and (x1 + (x2 - x1) < RIGHT_ZONE):
+                if getId not in tracked_ids:
                     # New person detected, start tracking
                     cvzone.cornerRect(img, (x1, y1, x2 - x1, y2 - y1), rt=1, colorC=(0, 255, 0))  # Green recognition
 

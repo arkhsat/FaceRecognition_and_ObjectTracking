@@ -16,7 +16,7 @@ This project implements a face recognition system integrated with object trackin
 - dlib or Face Recognition Library
 - Firebase Realtime Database
 - NumPy
-- Flask (optional for web interface)
+- Face_recognition lib (https://github.com/ageitgey/face_recognition)
 
 ## Installation
 

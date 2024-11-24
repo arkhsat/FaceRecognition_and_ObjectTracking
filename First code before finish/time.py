@@ -1,7 +1,5 @@
 from datetime import datetime
 from firebase_admin import db
-from capture import capture_and_upload
-
 
 # Variable For left warning
 exit_timers = {}

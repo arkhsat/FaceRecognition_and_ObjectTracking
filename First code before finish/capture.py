@@ -83,7 +83,7 @@ def capture_and_upload(img, getId, event):
                 time_range = f"{start_hour}:{start_minute}-{end_hour}:{end_minute}"
 
                 # Create the folder if it doesn't exist for each time range
-                folder_path = os.path.join('captures', time, getId, time_range, event)  # Saves in a folder based on person ID
+                folder_path = os.path.join('../captures', time, getId, time_range, event)  # Saves in a folder based on person ID
                 os.makedirs(folder_path, exist_ok=True)  # Create folder if it doesn't exist
 
                 # Full path to save the image
@@ -112,7 +112,7 @@ def capture_and_upload(img, getId, event):
 
         else:
             time_range = "NoSchedule"
-            folder_path = os.path.join('captures', time, getId, time_range, event)  # Create folder for "NoSchedule"
+            folder_path = os.path.join('../captures', time, getId, time_range, event)  # Create folder for "NoSchedule"
             os.makedirs(folder_path, exist_ok=True)
             local_img_path = os.path.join(folder_path, img_name)
             cv2.imwrite(local_img_path, img)

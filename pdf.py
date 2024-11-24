@@ -108,29 +108,13 @@ def pdd(person_id, event, current_date, time_range, current_time, lates, image_u
 
     name = db.reference(f'Person/{person_id}/name').get() or "Unknown"
     ID = db.reference(f'Person/{person_id}/title').get() or "Unknown"
-    time_rangesss = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}')
-    data = time_rangesss.get()
-    print(f'1: {time_rangesss}')
+    time_range = db.reference(f'Person/{person_id}/title').get() or "Unknown"
 
-    # if 'time' in data:
-    #     time_value = data['time']
-    #     print(f'Time: {time_value}')
-    # else:
-    #     print('Data tidak ditemukan atau tidak ada field "time".')
-    #
-    # if time_rangesss:
-    #     print("Time Range for Session:", time_rangesss)
-    # else:
-    #     print("Time Range for Session not found.")
-    #
-    # print("Time Range:", time_range)
-    # print("Event:", event)
+    # def entry(person_id):
+    img1 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}/image_url').get()
+    time1 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}/time').get()
+    late = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}/late_time').get()
 
-    print(f"current_date: {current_date}, person_id: {person_id}, time_range: {time_range}, event: {event}")
-
-    # img1 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}/image_url').get()
-    # time1 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}/time').get()
-    # late = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}/late_time').get()
     #
     # img2 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/left/image_url').get()
     # time2 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/left/time').get()
@@ -152,7 +136,7 @@ def pdd(person_id, event, current_date, time_range, current_time, lates, image_u
     #     'left2': left2, 'dur': dur, 'tot': tot
     # }
 
-    context = {'name': name, 'ID': ID, 'time_rangesss': time_rangesss}
+    context = {'name': name, 'ID': ID, 'time_range': time_range, 'img1': img1, 'time1': time1, 'late': late}
 
     template_loader = jinja2.FileSystemLoader('./')
     template_env = jinja2.Environment(loader=template_loader)

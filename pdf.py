@@ -96,24 +96,83 @@
 import jinja2
 import pdfkit
 from firebase_admin import db
-from timess import update_to_db_for_late
-from schedule import is_scheduled
+import sys
+sys.path.append('../schedule.py/')
 
 
-def pdd(person_id, event, current_date, time_range, current_time, lates, image_url):
+def pdd(person_id, event, current_date, time_range, current_time):
     print("Processing data for person:", person_id)
-
-    # scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = is_scheduled(person_id)
-    event, time_range, lates, image_url, current_time = update_to_db_for_late(person_id, current_date, time_range, event, lates, current_time, image_url)
 
     name = db.reference(f'Person/{person_id}/name').get() or "Unknown"
     ID = db.reference(f'Person/{person_id}/title').get() or "Unknown"
-    time_range = db.reference(f'Person/{person_id}/title').get() or "Unknown"
+    # time_rangesss = (db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}/').get() or
+    #                  "unknown")
+    # print(f"Time Range: {time_rangesss}")
+
+    # For time ranges
+    time_range_ref = db.reference(f'PersonEvents/{current_date}/{person_id}')
+    time_range_data = time_range_ref.get()
+
+    if time_range_data:
+        for time_range in time_range_data.keys():
+            # print(time_range)
+            time_rangesss = time_range
+            print(time_rangesss)
+    else:
+        print("NO")
 
     # def entry(person_id):
-    img1 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}/image_url').get()
-    time1 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}/time').get()
-    late = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}/late_time').get()
+    img1_ref = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}')
+    img1_data = img1_ref.get()
+    print(img1_data)
+
+    if img1_data and isinstance(img1_data, dict):
+        for key, value in img1_data.items():
+            # Pastikan value adalah dictionary
+            if isinstance(value, dict):
+                img1 = value.get('image_url', 'No Image URL')
+                time1 = value.get('time', 'No Time')
+                late = value.get('late_time', 'No Late Time')
+
+                print(f"""
+                Key: {key}
+                Image URL: {img1}
+                Time: {time1}
+                Late Time: {late}
+                """)
+            else:
+                print(f"Unexpected value format for key {key}: {value}")
+    else:
+        print("No valid data available or data format is incorrect.")
+
+    # if img1_data:
+    #     for key, value in img1_data.keys():
+    #         img1 = value.get('image_url', 'No Image URL')
+    #         print(img1)
+    # else:
+    #     print("NO")
+
+    # print(f" IMG: {img1}")
+
+    print(f" event: {event}")
+    # time1 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}/time').get()
+    time1_ref = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}')
+    time1_data = time1_ref.get()
+    if time1_data:
+        for key, value in time1_data.keys():
+            time1 = value.get('time', 'No Time URL')
+            print(time1)
+            # time1 = time
+            # print(f" time: {time1}")
+    else:
+        print("NO")
+
+    late_ref = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/{event}')
+    late_data = late_ref.get()
+    if late_data:
+        for key, value in late_data.keys():
+            late = value.get('late', 'No late time')
+            print(f" late: {late}")
 
     #
     # img2 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/left/image_url').get()
@@ -136,7 +195,7 @@ def pdd(person_id, event, current_date, time_range, current_time, lates, image_u
     #     'left2': left2, 'dur': dur, 'tot': tot
     # }
 
-    context = {'name': name, 'ID': ID, 'time_range': time_range, 'img1': img1, 'time1': time1, 'late': late}
+    context = {'name': name, 'ID': ID, 'time_rangesss': time_rangesss, 'img1': img1, 'time1': time1, 'late': late}
 
     template_loader = jinja2.FileSystemLoader('./')
     template_env = jinja2.Environment(loader=template_loader)
@@ -148,5 +207,3 @@ def pdd(person_id, event, current_date, time_range, current_time, lates, image_u
     pdfkit.from_string(output_text, pdf_filename, configuration=config)
 
     print(f"PDF generated: {pdf_filename}")
-
-

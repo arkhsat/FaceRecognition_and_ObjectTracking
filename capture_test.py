@@ -11,6 +11,7 @@ import firebase_admin
 def capture_and_upload(img, getId, event):
     try:
         scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = is_scheduled(getId)
+        print(f"Capturing image for ID {getId}, event: {event}")
         # print(f"Duration {scheduled_start_time} - {scheduled_end_time}")
         # File structure
         # current_time = current_time

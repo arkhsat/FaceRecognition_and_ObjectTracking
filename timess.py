@@ -4,6 +4,8 @@ from datetime import datetime  # timedelta
 # from firebase_admin import credentials
 from firebase_admin import db
 # import firebase_admin
+# from pdf import pdd
+from pdflangsung import entry, left, back, end
 
 
 # Variable For left warning
@@ -41,11 +43,10 @@ def count_duration(person_id, schedule_start_time, schedule_end_time):
 
 # For timer time late amd giving Warning
 def start_late_timer(person_id):
-    # schedule_start_time, schedule_end_time = is_scheduled(person_id)
-    # scheduled_start_time = schedule_start_time
     time_takes[person_id] = datetime.now()
     current_time = datetime.now()
     late_time = 0
+
     # If the person is late, start a timer
     if person_id not in late_timers or late_timers[person_id] is None:
         late_timers[person_id] = current_time  # Start the late timer
@@ -117,34 +118,27 @@ def start_left_timer(person_id):
     current_time = datetime.now()
     left_time = 0
 
-    # if person_id not in paused_timers:
-    #     return "Timer is pause for person {}".format(person_id)
-    #
-    # left_time = 0
-
     if person_id not in exit_timers:
         exit_timers[person_id] = current_time
-        # print(f"Timer started for person {person_id} at {current_time}")
+        # print(f"Timer initialized for person {person_id} at {exit_timers}")
     else:
         left_time = (current_time - exit_timers[person_id]).total_seconds()
+        # print(f"Left time for person {current_time}: {exit_timers} seconds")
         # print(f"Person {person_id} has been left for {left_time} seconds.")
 
-        if left_time >= 600 and person_id not in left_warnings:
+        if left_time >= 5 and person_id not in left_warnings:
             print(f"WARNING: Person {person_id} has left for more than 10 minutes!")
             left_warnings[person_id] = True
             last_left_warnings[person_id] = current_time
 
-        elif left_time >= 600 and person_id in left_warnings:
+        elif left_time >= 5 and person_id in left_warnings:
             time_since_last_warning = (current_time - last_left_warnings[person_id]).total_seconds()
-            print(
-                f"Time since last warning for person {person_id}: {time_since_last_warning} seconds.")
 
             if time_since_last_warning >= 300:
                 print(f"WARNING: Person {person_id} is still not entered for more than 10 minutes!")
                 last_left_warnings[person_id] = current_time
 
-    # print(f"Left time: {left_time} seconds.")
-    # print(f"Left TIMER = {left_time}")
+    print(f"Timer for Left time = {left_time}")
     return left_time
 
 
@@ -277,6 +271,7 @@ def update_to_db_for_left(getId, current_date, time_range, event, current_time, 
         'time': current_time,
         'image_url': image_url
     })
+    left(current_time, image_url)
 
 
 def update_to_db_for_return(getId, current_date, time_range, event, left_times, current_time, image_url):
@@ -287,13 +282,11 @@ def update_to_db_for_return(getId, current_date, time_range, event, left_times, 
         'left_time': left_times if event == "return" else None,
         'image_url': image_url
     })
+    # return current_time
+    back(getId, current_date, left_times)
 
 
 def update_to_db_for_late(getId, current_date, time_range, event, lates, current_time, image_url):
-
-    # current_date = current_date.isoformat() if isinstance(current_date, datetime) else current_date
-    # current_time = current_time.isoformat() if isinstance(current_time, datetime) else current_time
-    # lates = lates.isoformat() if isinstance(lates, datetime) else lates
 
     db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}').push({
         'name': db.reference(f'Person/{getId}/name').get(),
@@ -304,7 +297,8 @@ def update_to_db_for_late(getId, current_date, time_range, event, lates, current
         'image_url': image_url
     })
 
-    return event, time_range, lates, image_url, current_time
+    # return current_time
+    entry(image_url, current_time, lates)
 
 
 def update_to_db_for_end(getId, current_date, time_range, event, late_time, total_duration, total_time_left,
@@ -319,3 +313,6 @@ def update_to_db_for_end(getId, current_date, time_range, event, late_time, tota
         'Total_Time_Lecture': total_time_lecture,
         'image_url': image_url
     })
+    # return total_duration, late_time, total_time_left, total_time_lecture
+    end(image_url, current_time, total_duration, late_time, total_time_left, total_time_lecture)
+

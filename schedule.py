@@ -53,5 +53,42 @@ def is_scheduled(person_id):
                 if scheduled_start_time <= current_time <= scheduled_end_time:
                     # start_late_timer(person_id, scheduled_start_time)
                     return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
-
     return None
+
+
+# def is_scheduled(person_id):
+#     """
+#     Fungsi untuk mengecek apakah person_id memiliki jadwal aktif.
+#     Mengembalikan detail jadwal jika ditemukan, None jika tidak.
+#     """
+#     current_date = datetime.now().strftime("%Y - %m - %d")
+#     current_time = datetime.now()
+#
+#     # Ambil data jadwal dari Firebase
+#     schedule_ref = db.reference(f'schedule/{current_date}')
+#     schedule_data = schedule_ref.get()
+#
+#     # print(f"Schedule data for {current_date}: {schedule_data}")
+#
+#     if schedule_data:
+#         for time_range, scheduled_id in schedule_data.items():
+#             print(f"Checking time range {time_range} for person ID {scheduled_id}")
+#             start_time, end_time = time_range.split(' - ')
+#             start_hour, start_minute = start_time.split(':')
+#             end_hour, end_minute = end_time.split(':')
+#
+#             scheduled_start_time = datetime.strptime(f"{current_date} {start_hour}:{start_minute}", "%Y - %m - %d %H:%M")
+#             scheduled_end_time = datetime.strptime(f"{current_date} {end_hour}:{end_minute}", "%Y - %m - %d %H:%M")
+#
+#             # Handle end time yang melewati tengah malam
+#             if scheduled_end_time < scheduled_start_time:
+#                 scheduled_end_time += timedelta(days=1)
+#
+#             # Cek apakah ID sesuai dan waktu berada dalam rentang
+#             if str(scheduled_id) == str(person_id):
+#                 print(f"Schedule matched for person ID {person_id}: {time_range}")
+#                 if scheduled_start_time <= current_time <= scheduled_end_time:
+#                     return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
+#
+#     print(f"No schedule found for person ID {person_id} on {current_date}.")
+#     return None

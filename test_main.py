@@ -73,6 +73,11 @@ while True:
                 x, y, w, h = [int(v) for v in bbox]
                 scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = is_scheduled(
                     tracked_id)
+                # print(is_scheduled(tracked_id))
+                # schedule_times = is_scheduled(tracked_id)
+                # if schedule_times:
+                #     for scheduled_start_time, scheduled_end_time, current_time, time_range,
+                #     current_date in schedule_times:
 
                 if x + w < RIGHT_ZONE:
                     if not is_tracking:
@@ -143,17 +148,12 @@ while True:
                             is_tracking = False
 
                 if x + w < RIGHT_ZONE or x + w > RIGHT_ZONE:
-                    # print(f"current_time: {current_time} (type: {type(current_time)})")
                     current_times = datetime.now()
-                    # print(f"current_times: {current_times}, type: {type(current_times)}")
-                    # print(f"scheduled_end_time: {scheduled_end_time}, type: {type(scheduled_end_time)}")
 
                     if (current_times >= scheduled_end_time and
                             previous_capture_status.get(tracked_id) in ['entered', 'left', 'return']):
-                        # print("Condition met: current_times >= scheduled_end_time")
-                        # print(f"current_times: {current_times}, scheduled_end_time: {scheduled_end_time}")
                         # Capture and update to 'end'
-                        current_times_str = current_time.strftime("%H:%M:%S")
+                        current_times_str = current_times.strftime("%H:%M:%S")
                         image_url = capture_and_upload(img, tracked_id, 'end')
                         previous_capture_status[tracked_id] = 'end'
                         stop_tracking(tracked_id)
@@ -171,8 +171,8 @@ while True:
                         # print(f"current_times: {current_times}, scheduled_end_time: {scheduled_end_time}")
                         # print(f"previous_capture_status: {previous_capture_status.get(tracked_id)}")
                         # print(f"End of tracking for ID {tracked_id}, status updated to 'end'.")
-                        # pdd(tracked_id, current_date, current_time, image_url, lates, left_times, dur, lates, lefts, total)
-                        # csv_code(tracked_id, time_range, current_time, lates, lefts, total)
+                        # pdd(tracked_id, current_date, current_time)
+                        # csv_code(tracked_id, time_range, current_times_str, lates, lefts, total)
 
     imgS = cv2.resize(img, (0, 0), None, 0.25, 0.25)
     imgS = cv2.cvtColor(imgS, cv2.COLOR_BGR2RGB)  # Convert from BGR to RGB
@@ -186,7 +186,7 @@ while True:
             schedule_times = is_scheduled(person_id)
             if schedule_times:
                 scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = schedule_times
-
+                # for scheduled_start_time, scheduled_end_time, current_time, time_range, current_date in schedule_times:
                 if previous_capture_status.get(person_id) not in ['entered', 'left', 'return', 'end']:
                     start_late_timer(person_id)
 

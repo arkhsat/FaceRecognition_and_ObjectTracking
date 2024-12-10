@@ -4,14 +4,20 @@ import cvzone
 import face_recognition
 import numpy as np
 from datetime import datetime
-from capture_test import capture_and_upload
+# from capture_test import capture_and_upload  # this for capture and upload to firebase
+# from capture_test_sql import capture_and_upload  # this for capture and upload to sqlite
 from schedule import is_scheduled
 from timess import (count_duration, start_late_timer, count_late_time, start_left_timer, count_left_time,
-                    count_left_time_total, total_time, stop_late_timer, delete_left_timer, update_to_db_for_left,
-                    update_to_db_for_late, update_to_db_for_return, update_to_db_for_end)
+                    count_left_time_total, total_time, stop_late_timer, delete_left_timer)
+                    # update_to_db_for_left, update_to_db_for_late, update_to_db_for_return, update_to_db_for_end)
+from fortestdb.personevent import (update_to_db_for_left, update_to_db_for_return, update_to_db_for_late,
+                                   update_to_db_for_end)
 # from pdf.pdf import pdd
-from pdflangsung import pdd
-from csvencode import csv_code
+# from pdflangsung import pdd
+# from csvencode import csv_code  # the file is in the root
+from CSV.csvencode import csv_code  # the file is in the folder
+from fortestdb.capture_test_sql import capture_and_upload
+# from pdf.pdfgene import pfd
 
 # Webcam setup
 cap = cv2.VideoCapture(0)
@@ -73,6 +79,13 @@ while True:
                 x, y, w, h = [int(v) for v in bbox]
                 scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = is_scheduled(
                     tracked_id)
+                # result = is_scheduled(tracked_id)
+
+                # if result:
+                #     scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = result
+                # else:
+                #     scheduled_start_time = scheduled_end_time = current_time = time_range = current_date = None
+                #     print("No active schedule found.")
                 # print(is_scheduled(tracked_id))
                 # schedule_times = is_scheduled(tracked_id)
                 # if schedule_times:
@@ -80,6 +93,8 @@ while True:
                 #     current_date in schedule_times:
 
                 if x + w < RIGHT_ZONE:
+                    # scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = is_scheduled(
+                    #     tracked_id)
                     if not is_tracking:
                         is_tracking = True  # Start tracking
                         print(f"Tracking started for ID: {tracked_id}")
@@ -111,24 +126,18 @@ while True:
                     elif previous_capture_status.get(tracked_id) not in ['entered', 'return', 'left', 'end']:
                         image_url = (capture_and_upload(img, tracked_id, 'entered'))
                         current_time = current_time.strftime("%H:%M:%S")
-                        # print(f"current_time: {current_time} (type: {type(current_time)})")
 
                         # current_time = datetime.strftime(current_time, "%H:%M:%S")
                         previous_capture_status[tracked_id] = 'entered'
                         # display_image_from_url(image_url)
 
-                        # Start the timer for late
-                        # print(f"range {time_range}")
-                        # print(f"dur {scheduled_start_time} - {scheduled_end_time}")
-                        # count_duration(tracked_id, scheduled_start_time, scheduled_end_time)
-                        # print(f"dur {scheduled_start_time} - {scheduled_end_time}")
                         stop_late_timer(tracked_id)
                         lates = count_late_time(tracked_id, scheduled_start_time)
-                        # lates = lates.strftime("%H:%M:%S")
-                        # print(f"late: {lates} (type: {type(lates)})")
+
                         update_to_db_for_late(tracked_id, current_date, time_range, 'entered', lates, current_time,
-                                              image_url)
-                        # pdd(tracked_id, 'entered', current_date, time_range, current_time, image_url)
+                                              )
+                        # pfd(tracked_id, 'entered')
+                        # pdd(tracked_id, 'entered', current_date, time_range, current_time)
 
                 elif x + w > RIGHT_ZONE:
                     if is_tracking:
@@ -139,20 +148,18 @@ while True:
                             image_url = capture_and_upload(img, tracked_id, 'left')
                             previous_capture_status[tracked_id] = 'left'
                             current_time = current_time.strftime("%H:%M:%S")
-                            # start_left_timer(tracked_id)
-                            # display_image_from_url(image_url)
 
-                            # Start the timer for left the room
-                            # start_left_timer(tracked_id)
                             update_to_db_for_left(tracked_id, current_date, time_range, 'left', current_time, image_url)
                             is_tracking = False
 
-                if x + w < RIGHT_ZONE or x + w > RIGHT_ZONE:
+                elif x + w < RIGHT_ZONE or x + w > RIGHT_ZONE:
+                    print("test if this work i guess")
                     current_times = datetime.now()
 
                     if (current_times >= scheduled_end_time and
                             previous_capture_status.get(tracked_id) in ['entered', 'left', 'return']):
                         # Capture and update to 'end'
+                        print("Just Checking if this code work")
                         current_times_str = current_times.strftime("%H:%M:%S")
                         image_url = capture_and_upload(img, tracked_id, 'end')
                         previous_capture_status[tracked_id] = 'end'
@@ -166,13 +173,13 @@ while True:
                         left_times = count_left_time(tracked_id)
                         update_to_db_for_end(tracked_id, current_date, time_range, 'end', lates, dur, lefts, total,
                                              current_times_str, image_url)
-                        # pdd(tracked_id, current_date, time_range, current_time)
-                        # print(f"Processing 'end' event for ID {tracked_id}")
-                        # print(f"current_times: {current_times}, scheduled_end_time: {scheduled_end_time}")
-                        # print(f"previous_capture_status: {previous_capture_status.get(tracked_id)}")
-                        # print(f"End of tracking for ID {tracked_id}, status updated to 'end'.")
                         # pdd(tracked_id, current_date, current_time)
-                        # csv_code(tracked_id, time_range, current_times_str, lates, lefts, total)
+                        csv_code(tracked_id, time_range, current_times_str, lates, lefts, total)
+
+            else:
+                # Remove the tracker if it fails
+                trackers.pop(i)
+                tracked_ids.pop(i)
 
     imgS = cv2.resize(img, (0, 0), None, 0.25, 0.25)
     imgS = cv2.cvtColor(imgS, cv2.COLOR_BGR2RGB)  # Convert from BGR to RGB
@@ -186,7 +193,6 @@ while True:
             schedule_times = is_scheduled(person_id)
             if schedule_times:
                 scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = schedule_times
-                # for scheduled_start_time, scheduled_end_time, current_time, time_range, current_date in schedule_times:
                 if previous_capture_status.get(person_id) not in ['entered', 'left', 'return', 'end']:
                     start_late_timer(person_id)
 

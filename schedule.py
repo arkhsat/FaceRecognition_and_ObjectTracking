@@ -2,13 +2,13 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 from datetime import datetime, timedelta
-# import os
-#
-# base_dir = os.path.dirname(os.path.abspath(__file__))  # Lokasi file schedule.py
-# cred_path = os.path.join(base_dir, "serviceAccountKey1.json")
+import os
 
-cred = credentials.Certificate("serviceAccountKey1.json")
-# cred = credentials.Certificate(cred_path)
+base_dir = os.path.dirname(os.path.abspath(__file__))  # Lokasi file schedule.py
+cred_path = os.path.join(base_dir, "serviceAccountKey1.json")
+
+# cred = credentials.Certificate("serviceAccountKey1.json")
+cred = credentials.Certificate(cred_path)
 firebase_admin.initialize_app(cred, {
     'databaseURL': "https://testing1-5b399-default-rtdb.firebaseio.com/",
     'storageBucket': "testing1-5b399.appspot.com"
@@ -31,7 +31,7 @@ def is_scheduled(person_id):
     # print(schedule_data)
 
     if schedule_data:
-        active_schedule = []
+        # active_schedule = []
 
         for time_range, scheduled_id in schedule_data.items():
             start_time, end_time = time_range.split(' - ')
@@ -52,19 +52,25 @@ def is_scheduled(person_id):
 
             if str(scheduled_id) == str(person_id):
                 if scheduled_start_time <= current_time <= scheduled_end_time:
-                    active_schedule.append((scheduled_start_time, scheduled_end_time, time_range))
-
-        if len(active_schedule) > 1:
-            for i, (start1, end1, _) in enumerate(active_schedule):
-                for j, (start2, end2, _) in enumerate(active_schedule):
-                    if i != j:  # Avoid self-comparison
-                        if not (end1 <= start2 or start1 >= end2):  # Overlap condition
-                            print(f"Conflict detected between {start1}-{end1} and {start2}-{end2}")
-                            return None
-
-        if active_schedule:
-            scheduled_start_time, scheduled_end_time, time_range = active_schedule[0]
-            return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
+                    return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
+                    # active_schedule.append((scheduled_start_time, scheduled_end_time, time_range))
+                elif current_time >= scheduled_end_time:
+                    print("time is up ")
+                    return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
+        #         else:
+        #             return None
+        #
+        # if len(active_schedule) > 1:
+        #     for i, (start1, end1, _) in enumerate(active_schedule):
+        #         for j, (start2, end2, _) in enumerate(active_schedule):
+        #             if i != j:  # Avoid self-comparison
+        #                 if not (end1 <= start2 or start1 >= end2):  # Overlap condition
+        #                     print(f"Conflict detected between {start1}-{end1} and {start2}-{end2}")
+        #                     return None
+        #
+        # if active_schedule:
+        #     scheduled_start_time, scheduled_end_time, time_range = active_schedule[0]
+        #     return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
 
         #     if str(scheduled_id) == str(person_id):
         #         # return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date

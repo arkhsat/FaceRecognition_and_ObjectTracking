@@ -53,10 +53,12 @@ def is_scheduled(person_id):
             if str(scheduled_id) == str(person_id):
                 if scheduled_start_time <= current_time <= scheduled_end_time:
                     return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
+
                     # active_schedule.append((scheduled_start_time, scheduled_end_time, time_range))
-                elif current_time >= scheduled_end_time:
-                    print("time is up ")
-                    return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
+
+                # elif current_time >= scheduled_end_time:
+                #     #     print("time is up ")
+                #     return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
         #         else:
         #             return None
         #
@@ -88,3 +90,34 @@ def is_scheduled(person_id):
         print("No Schedule")
 
     return None
+
+# def is_scheduled(person_id):
+#     """
+#     Periksa apakah saat ini person_id memiliki jadwal aktif.
+#     """
+#     current_date = datetime.now().strftime("%Y-%m-%d")
+#     current_time = datetime.now()
+#
+#     schedules_today = current_date
+#
+#     relevant_schedule = None
+#     for schedule_id, schedule in schedules_today.items():
+#         scheduled_start_time = datetime.strptime(schedule['start'], "%H:%M:%S")
+#         scheduled_end_time = datetime.strptime(schedule['end'], "%H:%M:%S")
+#
+#         if scheduled_start_time <= current_time <= scheduled_end_time:
+#             # Jadwal aktif
+#             return scheduled_start_time, scheduled_end_time, current_time, schedule[
+#                 'time_range'], current_date, schedule_id
+#
+#         if current_time >= scheduled_end_time and not relevant_schedule:
+#             # Jadwal yang baru saja selesai
+#             relevant_schedule = (scheduled_start_time, scheduled_end_time, schedule['time_range'], schedule_id)
+#
+#     # Kembalikan jadwal yang selesai jika tidak ada jadwal aktif
+#     if relevant_schedule:
+#         return relevant_schedule[0], relevant_schedule[1], current_time, relevant_schedule[2], current_date, \
+#         relevant_schedule[3]
+#
+#     return None  # Tidak ada jadwal yang cocok
+

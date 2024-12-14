@@ -87,25 +87,25 @@ def is_scheduled(person_id):
                 if scheduled_start_time <= current_time <= scheduled_end_time:
                     return scheduled_start_time, scheduled_end_time  # The person is scheduled for the current time
 
-                # elif (current_time >= scheduled_end_time and previous_capture_status.get(person_id) in
-                #       ['entered', 'left', 'return']):
-                #     # print(f'currentEND = {current_time}')
-                #     image_url = capture_and_upload(img, person_id, 'end')
-                #     previous_capture_status[person_id] = 'end'
-                #
-                #     # Process after session ends
-                #     # for stop tracking
-                #     stop_tracking(person_id)
-                #     display_image_from_url(image_url)
-                #
-                #     # for calculate time
-                #     count_duration(scheduled_start_time, scheduled_end_time)
-                #     count_late_time(person_id, scheduled_start_time)
-                #     count_left_time(person_id)
-                #     total_time(person_id, scheduled_start_time, scheduled_end_time)
-                #
-                #     previous_capture_status[person_id] = 'reset'
-                #     return None
+                elif (current_time >= scheduled_end_time and previous_capture_status.get(person_id) in
+                      ['entered', 'left', 'return']):
+                    # print(f'currentEND = {current_time}')
+                    image_url = capture_and_upload(img, person_id, 'end')
+                    previous_capture_status[person_id] = 'end'
+
+                    # Process after session ends
+                    # for stop tracking
+                    stop_tracking(person_id)
+                    display_image_from_url(image_url)
+
+                    # for calculate time
+                    count_duration(scheduled_start_time, scheduled_end_time)
+                    count_late_time(person_id, scheduled_start_time)
+                    count_left_time(person_id)
+                    total_time(person_id, scheduled_start_time, scheduled_end_time)
+
+                    previous_capture_status[person_id] = 'reset'
+                    return None
 
                 # break
 
@@ -190,27 +190,27 @@ while True:
                             start_left_timer(tracked_id)
                             is_tracking = False
 
-                if x + w < RIGHT_ZONE or x + w > RIGHT_ZONE:
-                    scheduled_start_time, scheduled_end_time = is_scheduled(tracked_id)
-                    current_time = datetime.now()
-                    if (current_time >= scheduled_end_time and previous_capture_status.get(tracked_id) in
-                          ['entered', 'left', 'return']):
-                        # print(f'currentEND = {current_time}')
-                        image_url = capture_and_upload(img, tracked_id, 'end')
-                        previous_capture_status[tracked_id] = 'end'
-
-                        # Process after session ends
-                        # for stop tracking
-                        stop_tracking(tracked_id)
-                        display_image_from_url(image_url)
-
-                        # for calculate time
-                        count_duration(scheduled_start_time, scheduled_end_time)
-                        count_late_time(tracked_id, scheduled_start_time)
-                        count_left_time(tracked_id)
-                        total_time(tracked_id, scheduled_start_time, scheduled_end_time)
-
-                        previous_capture_status[tracked_id] = 'reset'
+                # if x + w < RIGHT_ZONE or x + w > RIGHT_ZONE:
+                #     scheduled_start_time, scheduled_end_time = is_scheduled(tracked_id)
+                #     current_time = datetime.now()
+                #     if (current_time >= scheduled_end_time and previous_capture_status.get(tracked_id) in
+                #           ['entered', 'left', 'return']):
+                #         # print(f'currentEND = {current_time}')
+                #         image_url = capture_and_upload(img, tracked_id, 'end')
+                #         previous_capture_status[tracked_id] = 'end'
+                #
+                #         # Process after session ends
+                #         # for stop tracking
+                #         stop_tracking(tracked_id)
+                #         display_image_from_url(image_url)
+                #
+                #         # for calculate time
+                #         count_duration(scheduled_start_time, scheduled_end_time)
+                #         count_late_time(tracked_id, scheduled_start_time)
+                #         count_left_time(tracked_id)
+                #         total_time(tracked_id, scheduled_start_time, scheduled_end_time)
+                #
+                #         previous_capture_status[tracked_id] = 'reset'
 
             else:
                 # Remove the tracker if it fails

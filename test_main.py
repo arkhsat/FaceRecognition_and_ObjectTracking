@@ -4,20 +4,35 @@ import cvzone
 import face_recognition
 import numpy as np
 from datetime import datetime
-# from capture_test import capture_and_upload  # this for capture and upload to firebase
-# from capture_test_sql import capture_and_upload  # this for capture and upload to sqlite
-from schedule import is_scheduled
 from timess import (count_duration, start_late_timer, count_late_time, start_left_timer, count_left_time,
                     count_left_time_total, total_time, stop_late_timer, delete_left_timer)
-                    # update_to_db_for_left, update_to_db_for_late, update_to_db_for_return, update_to_db_for_end)
-from fortestdb.personevent import (update_to_db_for_left, update_to_db_for_return, update_to_db_for_late,
-                                   update_to_db_for_end)
-# from pdf.pdf import pdd
-# from pdflangsung import pdd
-# from csvencode import csv_code  # the file is in the root
+                    # (update_to_db_for_left, update_to_db_for_late, update_to_db_for_return, update_to_db_for_end)
+
+# FOR FIREBASE
+from schedule import is_scheduled  # for import schedule from firebase
+from capture_test import capture_and_upload  # this for capture and upload to firebase
+from personeventdb import (update_to_db_for_left, update_to_db_for_return, update_to_db_for_late, update_to_db_for_end)
+
+
+# FOR SQLITE
+# from capture_test_sql import capture_and_upload  # this for capture and upload to sqlite
+# from fortestdb.capture_test_sql import capture_and_upload  # from capture db sqlite
+# from fortestdb.personevent import (update_to_db_for_left, update_to_db_for_return, update_to_db_for_late,
+#                                    update_to_db_for_end)  # for save personEvent in sqlite
+
+# FOR PDF
+# from pdflangsung import pdd  # for PDF, the file is in the root
+# from pdf.pdfgene import pfd  # from pdf folder
+
+
+# FOR CSV
+# from csvencode import csv_code  # for CSV, the file is in the root
 from CSV.csvencode import csv_code  # the file is in the folder
-from fortestdb.capture_test_sql import capture_and_upload
-# from pdf.pdfgene import pfd
+
+
+# FOR TELEBOT
+from telegrambot.telegrambot import get_event_entered, get_event_left, get_event_return, get_event_end
+
 
 # Webcam setup
 cap = cv2.VideoCapture(0)
@@ -92,6 +107,29 @@ while True:
                 #     for scheduled_start_time, scheduled_end_time, current_time, time_range,
                 #     current_date in schedule_times:
 
+                if current_time == scheduled_end_time:
+                    print("Just Checking if this code work")
+                    # Capture and update to 'end'
+                    if previous_capture_status.get(tracked_id) in ['entered', 'left', 'return']:
+                        print("Just Checking if this code work")
+                        current_times_str = current_time.strftime("%H:%M:%S")
+                        image_url = capture_and_upload(img, tracked_id, 'end')
+                        previous_capture_status[tracked_id] = 'end'
+                        stop_tracking(tracked_id)
+
+                        # Display the capture image or take further actions
+                        dur = count_duration(tracked_id, scheduled_start_time, scheduled_end_time)
+                        lates = count_late_time(tracked_id, scheduled_start_time)
+                        lefts = count_left_time_total(tracked_id)
+                        total = total_time(tracked_id)
+                        left_times = count_left_time(tracked_id)
+                        update_to_db_for_end(tracked_id, current_date, time_range, 'end', lates, dur, lefts, total,
+                                             current_times_str, image_url)  # FOR FIREBASE
+                        # update_to_db_for_end(tracked_id, current_date, time_range, 'end', lates, dur, lefts, total,
+                        #                      current_times_str)  # THIS ONE FOR SQLITE
+                        get_event_end(current_date, getId, time_range, 'end')
+                        csv_code(tracked_id, time_range, current_times_str, lates, lefts, total)
+
                 if x + w < RIGHT_ZONE:
                     # scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = is_scheduled(
                     #     tracked_id)
@@ -111,15 +149,14 @@ while True:
                         current_time = current_time.strftime("%H:%M:%S")
                         image_url = (capture_and_upload(img, tracked_id, 'return'))
                         previous_capture_status[tracked_id] = 'return'
-                        # print(f"current_time22: {current_time} (type: {type(current_time)})")
-                        # stop_left_timer(tracked_id)
                         left = count_left_time(tracked_id)
                         count_left_time_total(tracked_id)
                         delete_left_timer(tracked_id)
                         is_tracking = True
 
-                        update_to_db_for_return(tracked_id, current_date, time_range, 'return', left, current_time,
-                                                image_url)
+                        update_to_db_for_return(tracked_id, current_date, time_range, 'return', left, current_time, image_url)  # FOR FIREBASE
+                        get_event_return(current_date, getId, time_range, 'return')
+                        # update_to_db_for_return(tracked_id, current_date, time_range, 'return', left, current_time, image_url)  # FOR SQLITE
                         # pdd(tracked_id, 'return', time_range, current_date, current_time)
                         # display_image_from_url(image_url)
 
@@ -134,9 +171,10 @@ while True:
                         stop_late_timer(tracked_id)
                         lates = count_late_time(tracked_id, scheduled_start_time)
 
-                        update_to_db_for_late(tracked_id, current_date, time_range, 'entered', lates, current_time,
-                                              )
-                        # pfd(tracked_id, 'entered')
+                        update_to_db_for_late(tracked_id, current_date, time_range, 'entered', lates, current_time, image_url)  # FOR FIREBASE
+                        # update_to_db_for_late(tracked_id, current_date, time_range, 'entered', lates, current_time)  # FOR SQLITE
+                        get_event_entered(current_date, getId, time_range, 'entered')
+                        # pfd(tracked_id, 'entered', current_time, lates)
                         # pdd(tracked_id, 'entered', current_date, time_range, current_time)
 
                 elif x + w > RIGHT_ZONE:
@@ -149,32 +187,37 @@ while True:
                             previous_capture_status[tracked_id] = 'left'
                             current_time = current_time.strftime("%H:%M:%S")
 
-                            update_to_db_for_left(tracked_id, current_date, time_range, 'left', current_time, image_url)
+                            update_to_db_for_left(tracked_id, current_date, time_range, 'left', current_time, image_url)  # FOR FIREBASE
+                            # update_to_db_for_left(tracked_id, current_date, time_range, 'left', current_time)  # FOR SQLITE
+                            get_event_left(current_date, getId, time_range, 'left')
+
                             is_tracking = False
 
-                elif x + w < RIGHT_ZONE or x + w > RIGHT_ZONE:
-                    print("test if this work i guess")
-                    current_times = datetime.now()
-
-                    if (current_times >= scheduled_end_time and
-                            previous_capture_status.get(tracked_id) in ['entered', 'left', 'return']):
-                        # Capture and update to 'end'
-                        print("Just Checking if this code work")
-                        current_times_str = current_times.strftime("%H:%M:%S")
-                        image_url = capture_and_upload(img, tracked_id, 'end')
-                        previous_capture_status[tracked_id] = 'end'
-                        stop_tracking(tracked_id)
-
-                        # Display the capture image or take further actions
-                        dur = count_duration(tracked_id, scheduled_start_time, scheduled_end_time)
-                        lates = count_late_time(tracked_id, scheduled_start_time)
-                        lefts = count_left_time_total(tracked_id)
-                        total = total_time(tracked_id)
-                        left_times = count_left_time(tracked_id)
-                        update_to_db_for_end(tracked_id, current_date, time_range, 'end', lates, dur, lefts, total,
-                                             current_times_str, image_url)
-                        # pdd(tracked_id, current_date, current_time)
-                        csv_code(tracked_id, time_range, current_times_str, lates, lefts, total)
+                # elif x + w < RIGHT_ZONE or x + w > RIGHT_ZONE:
+                #     print("test if this work i guess")
+                #     current_times = datetime.now()
+                #
+                #     if (current_times >= scheduled_end_time and
+                #             previous_capture_status.get(tracked_id) in ['entered', 'left', 'return']):
+                #         # Capture and update to 'end'
+                #         print("Just Checking if this code work")
+                #         current_times_str = current_times.strftime("%H:%M:%S")
+                #         image_url = capture_and_upload(img, tracked_id, 'end')
+                #         previous_capture_status[tracked_id] = 'end'
+                #         stop_tracking(tracked_id)
+                #
+                #         # Display the capture image or take further actions
+                #         dur = count_duration(tracked_id, scheduled_start_time, scheduled_end_time)
+                #         lates = count_late_time(tracked_id, scheduled_start_time)
+                #         lefts = count_left_time_total(tracked_id)
+                #         total = total_time(tracked_id)
+                #         left_times = count_left_time(tracked_id)
+                #         update_to_db_for_end(tracked_id, current_date, time_range, 'end', lates, dur, lefts, total,
+                #                              current_times_str, image_url)  # FOR FIREBASE
+                #         # update_to_db_for_end(tracked_id, current_date, time_range, 'end', lates, dur, lefts, total,
+                #         #                      current_times_str)  # THIS ONE FOR SQLITE
+                #         # pdd(tracked_id, current_date, current_time)
+                #         csv_code(tracked_id, time_range, current_times_str, lates, lefts, total)
 
             else:
                 # Remove the tracker if it fails
@@ -244,6 +287,8 @@ while True:
 
     cv2.imshow("Webcam", img)
     cv2.waitKey(1)
+
+    # start_telegram_bot()
 
 # cap.release()
 # cv2.destroyAllWindows()

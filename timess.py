@@ -2,11 +2,13 @@ from datetime import datetime  # timedelta
 # from firebase_admin import storage, db
 # from schedule import is_scheduled
 # from firebase_admin import credentials
-from firebase_admin import db
 # import firebase_admin
 # from pdf import pdd
 from pdflangsung import entry, left, back, end
 
+from telegrambot.telegrambot import send_warning, start_bot_in_thread
+
+# start_bot_in_thread()
 
 # Variable For left warning
 exit_timers = {}
@@ -54,15 +56,17 @@ def start_late_timer(person_id):
         # late_timers[person_id] = scheduled_start_time  # Start 8the late timer
     else:
         late_time = (current_time - late_timers[person_id]).total_seconds()
-        if late_time >= 5 and person_id not in late_warnings:  # 600 seconds = 10 minutes
+        if late_time >= 60 and person_id not in late_warnings:  # 600 seconds = 10 minutes
             print(f"WARNING: Person {person_id} has not entered for more than 10 minutes!")
+            send_warning(person_id, f"Person {person_id} has not entered for 10 minutes!")
             late_warnings[person_id] = True
             last_late_warning[person_id] = current_time
-        elif late_time >= 5 and person_id in late_warnings:
+        elif late_time >= 60 and person_id in late_warnings:
             time_since_last_warning = (current_time - last_late_warning[person_id]).total_seconds()
 
             if time_since_last_warning >= 300:
-                print(f"WARNING: Person {person_id} is still not entered for more than 10 minutes!")
+                print(f"WARNING: Person {person_id} is still not entered for another 10 minutes!")
+                send_warning(person_id, f"Person {person_id} has not entered for another 10 minutes!")
                 last_late_warning[person_id] = current_time
 
     print(f"Timer for late time: {late_time}")
@@ -126,37 +130,22 @@ def start_left_timer(person_id):
         # print(f"Left time for person {current_time}: {exit_timers} seconds")
         # print(f"Person {person_id} has been left for {left_time} seconds.")
 
-        if left_time >= 5 and person_id not in left_warnings:
+        if left_time >= 60 and person_id not in left_warnings:
             print(f"WARNING: Person {person_id} has left for more than 10 minutes!")
+            send_warning(person_id, f"Person {person_id} has left the room for 10 minutes!")
             left_warnings[person_id] = True
             last_left_warnings[person_id] = current_time
 
-        elif left_time >= 5 and person_id in left_warnings:
+        elif left_time >= 60 and person_id in left_warnings:
             time_since_last_warning = (current_time - last_left_warnings[person_id]).total_seconds()
 
             if time_since_last_warning >= 300:
                 print(f"WARNING: Person {person_id} is still not entered for more than 10 minutes!")
+                send_warning(person_id, f"Person {person_id} not return to the room for another 10 minutes!")
                 last_left_warnings[person_id] = current_time
 
     print(f"Timer for Left time = {left_time}")
     return left_time
-
-
-# def stop_left_timer(person_id):
-#     # del = start_left_timer(person_id)
-#     if person_id in exit_timers:
-#         print(f"exit time before stop: {exit_timers}")
-#         # del start_left_timer(person_id)
-#         del exit_timers
-#         print(f"exit time after stop: {exit_timers}")
-#         print(f"Timer stopped for person {person_id}")
-
-
-# def stop_left_timer(person_id):
-#     if person_id in exit_timers and person_id not in paused_timers:
-#         paused_timers[person_id] = True
-#         pause_start_time[person_id] = datetime.now()  # Record the time when paused
-#         print(f"Timer paused for person {person_id} at {pause_start_time[person_id]}.")
 
 
 def delete_left_timer(person_id):
@@ -230,6 +219,9 @@ def format_duration(seconds):
         return f"{hours:.2f} hours"
 
 
+start_bot_in_thread()
+
+
 # def save_time_to_db(person_id, scheduled_duration, late_time, total, outside):
 #     try:
 #         # time, time_range = capture_and_upload(img, person_id, event)
@@ -263,56 +255,56 @@ def format_duration(seconds):
 #     })
 
 
-def update_to_db_for_left(getId, current_date, time_range, event, current_time, image_url):
-    db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}').push({
-        'name': db.reference(f'Person/{getId}/name').get(),
-        'event': event,
-        'time_range': time_range,
-        'time': current_time,
-        'image_url': image_url
-    })
-    left(current_time, image_url)
-
-
-def update_to_db_for_return(getId, current_date, time_range, event, left_times, current_time, image_url):
-    db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}').push({
-        'name': db.reference(f'Person/{getId}/name').get(),
-        'event': event,
-        'time': current_time,
-        'left_time': left_times if event == "return" else None,
-        'image_url': image_url
-    })
-    # return current_time
-    back(getId, current_date, left_times)
-
-
-def update_to_db_for_late(getId, current_date, time_range, event, lates, current_time, image_url):
-
-    db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}').push({
-        'name': db.reference(f'Person/{getId}/name').get(),
-        'event': event,
-        'time': current_time,
-        'time_range_for_session': time_range,
-        'late_time': lates if event == "entered" else None,
-        'image_url': image_url
-    })
-
-    # return current_time
-    entry(image_url, current_time, lates)
-
-
-def update_to_db_for_end(getId, current_date, time_range, event, late_time, total_duration, total_time_left,
-                         total_time_lecture, current_time, image_url):
-    db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}').push({
-        'name': db.reference(f'Person/{getId}/name').get(),
-        'event': event,
-        'time': current_time,
-        'Duration': total_duration,
-        'Total_Time_Late': late_time,
-        'Total_Time_Left': total_time_left,
-        'Total_Time_Lecture': total_time_lecture,
-        'image_url': image_url
-    })
-    # return total_duration, late_time, total_time_left, total_time_lecture
-    end(image_url, current_time, total_duration, late_time, total_time_left, total_time_lecture)
+# def update_to_db_for_left(getId, current_date, time_range, event, current_time, image_url):
+#     db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}').push({
+#         'name': db.reference(f'Person/{getId}/name').get(),
+#         'event': event,
+#         'time_range': time_range,
+#         'time': current_time,
+#         'image_url': image_url
+#     })
+#     left(current_time, image_url)
+#
+#
+# def update_to_db_for_return(getId, current_date, time_range, event, left_times, current_time, image_url):
+#     db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}').push({
+#         'name': db.reference(f'Person/{getId}/name').get(),
+#         'event': event,
+#         'time': current_time,
+#         'left_time': left_times if event == "return" else None,
+#         'image_url': image_url
+#     })
+#     # return current_time
+#     back(getId, current_date, left_times)
+#
+#
+# def update_to_db_for_late(getId, current_date, time_range, event, lates, current_time, image_url):
+#
+#     db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}').push({
+#         'name': db.reference(f'Person/{getId}/name').get(),
+#         'event': event,
+#         'time': current_time,
+#         'time_range_for_session': time_range,
+#         'late_time': lates if event == "entered" else None,
+#         'image_url': image_url
+#     })
+#
+#     # return current_time
+#     entry(image_url, current_time, lates)
+#
+#
+# def update_to_db_for_end(getId, current_date, time_range, event, late_time, total_duration, total_time_left,
+#                          total_time_lecture, current_time, image_url):
+#     db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}').push({
+#         'name': db.reference(f'Person/{getId}/name').get(),
+#         'event': event,
+#         'time': current_time,
+#         'Duration': total_duration,
+#         'Total_Time_Late': late_time,
+#         'Total_Time_Left': total_time_left,
+#         'Total_Time_Lecture': total_time_lecture,
+#         'image_url': image_url
+#     })
+#     # return total_duration, late_time, total_time_left, total_time_lecture
+#     end(image_url, current_time, total_duration, late_time, total_time_left, total_time_lecture)
 

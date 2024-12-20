@@ -31,7 +31,6 @@ def is_scheduled(person_id):
     # print(schedule_data)
 
     if schedule_data:
-        # active_schedule = []
 
         for time_range, scheduled_id in schedule_data.items():
             start_time, end_time = time_range.split(' - ')
@@ -53,71 +52,13 @@ def is_scheduled(person_id):
             if str(scheduled_id) == str(person_id):
                 if scheduled_start_time <= current_time <= scheduled_end_time:
                     return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
+                elif scheduled_end_time <= current_time:
+                    print("OVERRR")
+                    return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
 
-                    # active_schedule.append((scheduled_start_time, scheduled_end_time, time_range))
-
-                # elif current_time >= scheduled_end_time:
-                #     #     print("time is up ")
-                #     return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
-        #         else:
-        #             return None
-        #
-        # if len(active_schedule) > 1:
-        #     for i, (start1, end1, _) in enumerate(active_schedule):
-        #         for j, (start2, end2, _) in enumerate(active_schedule):
-        #             if i != j:  # Avoid self-comparison
-        #                 if not (end1 <= start2 or start1 >= end2):  # Overlap condition
-        #                     print(f"Conflict detected between {start1}-{end1} and {start2}-{end2}")
-        #                     return None
-        #
-        # if active_schedule:
-        #     scheduled_start_time, scheduled_end_time, time_range = active_schedule[0]
-        #     return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
-
-        #     if str(scheduled_id) == str(person_id):
-        #         # return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
-        #         # for checking status base on person_id and time_range
-        #         if scheduled_start_time <= current_time <= scheduled_end_time:
-        #             print(f"Schedule active for ID {person_id}")
-        #             return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
-        #         elif current_time >= scheduled_end_time:
-        #             # print(f"Schedule ended for ID {person_id}")
-        #             return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
-        #         # return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
-    # return None
 
     else:
         print("No Schedule")
 
     return None
-
-# def is_scheduled(person_id):
-#     """
-#     Periksa apakah saat ini person_id memiliki jadwal aktif.
-#     """
-#     current_date = datetime.now().strftime("%Y-%m-%d")
-#     current_time = datetime.now()
-#
-#     schedules_today = current_date
-#
-#     relevant_schedule = None
-#     for schedule_id, schedule in schedules_today.items():
-#         scheduled_start_time = datetime.strptime(schedule['start'], "%H:%M:%S")
-#         scheduled_end_time = datetime.strptime(schedule['end'], "%H:%M:%S")
-#
-#         if scheduled_start_time <= current_time <= scheduled_end_time:
-#             # Jadwal aktif
-#             return scheduled_start_time, scheduled_end_time, current_time, schedule[
-#                 'time_range'], current_date, schedule_id
-#
-#         if current_time >= scheduled_end_time and not relevant_schedule:
-#             # Jadwal yang baru saja selesai
-#             relevant_schedule = (scheduled_start_time, scheduled_end_time, schedule['time_range'], schedule_id)
-#
-#     # Kembalikan jadwal yang selesai jika tidak ada jadwal aktif
-#     if relevant_schedule:
-#         return relevant_schedule[0], relevant_schedule[1], current_time, relevant_schedule[2], current_date, \
-#         relevant_schedule[3]
-#
-#     return None  # Tidak ada jadwal yang cocok
 

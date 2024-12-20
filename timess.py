@@ -6,7 +6,7 @@ from datetime import datetime  # timedelta
 # from pdf import pdd
 from pdflangsung import entry, left, back, end
 
-from telegrambot.telegrambot import send_warning, start_bot_in_thread
+from telegrambot.telegrambot import send_warning, start_bot_in_thread, get_chat_id
 
 # start_bot_in_thread()
 
@@ -48,6 +48,7 @@ def start_late_timer(person_id):
     time_takes[person_id] = datetime.now()
     current_time = datetime.now()
     late_time = 0
+    get_chat_id(person_id)
 
     # If the person is late, start a timer
     if person_id not in late_timers or late_timers[person_id] is None:
@@ -56,7 +57,7 @@ def start_late_timer(person_id):
         # late_timers[person_id] = scheduled_start_time  # Start 8the late timer
     else:
         late_time = (current_time - late_timers[person_id]).total_seconds()
-        if late_time >= 60 and person_id not in late_warnings:  # 600 seconds = 10 minutes
+        if late_time >= 5 and person_id not in late_warnings:  # 600 seconds = 10 minutes
             print(f"WARNING: Person {person_id} has not entered for more than 10 minutes!")
             send_warning(person_id, f"Person {person_id} has not entered for 10 minutes!")
             late_warnings[person_id] = True

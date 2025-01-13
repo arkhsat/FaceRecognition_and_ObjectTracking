@@ -11,7 +11,7 @@ from timess import (count_duration, start_late_timer, count_late_time, start_lef
 # FOR FIREBASE
 from schedule import is_scheduled  # for import schedule from firebase
 from capture_test import capture_and_upload  # this for capture and upload to firebase
-from personeventdb import (update_to_db_for_left, update_to_db_for_return, update_to_db_for_late, update_to_db_for_end)
+from personeventdb import (update_to_db_for_left, update_to_db_for_return, update_to_db_for_late, update_to_db_for_end, update_pdf)
 
 
 # FOR SQLITE
@@ -119,6 +119,10 @@ while True:
                         csv_code(tracked_id, time_range, current_times_str, lates, lefts, total)
                         pdd(getId, current_date, current_time, time_range, 'end')
 
+                        # for get pdf url and put in firebase
+                        # pdf_url = pdd(getId, current_date, current_time, time_range, 'end')
+                        # update_pdf(getId, current_date, time_range, 'end', pdf_url)
+
                 if x + w < RIGHT_ZONE:
                     # scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = is_scheduled(
                     #     tracked_id)
@@ -182,6 +186,9 @@ while True:
                             get_event_left(current_date, getId, time_range, 'left')
                             pdd(tracked_id, current_date, current_time, time_range, 'left')
                             is_tracking = False
+
+                            pdf_url = pdd(getId, current_date, current_time, time_range, 'left')
+                            update_pdf(getId, current_date, time_range, 'left', pdf_url)
 
                 # elif x + w < RIGHT_ZONE or x + w > RIGHT_ZONE:
                 #     print("test if this work i guess")
@@ -277,8 +284,6 @@ while True:
 
     cv2.imshow("Webcam", img)
     cv2.waitKey(1)
-
-    # start_telegram_bot()
 
 # cap.release()
 # cv2.destroyAllWindows()

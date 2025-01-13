@@ -264,7 +264,7 @@ def pdd(person_id, current_date, current_time, **kwargs):
     }
 
     # Generate PDF
-    template_loader = jinja2.FileSystemLoader('./')
+    template_loader = jinja2.FileSystemLoader('../')
     template_env = jinja2.Environment(loader=template_loader)
     template = template_env.get_template("pdf.html")
     output_text = template.render(context)

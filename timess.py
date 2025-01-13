@@ -4,7 +4,6 @@ from datetime import datetime  # timedelta
 # from firebase_admin import credentials
 # import firebase_admin
 # from pdf import pdd
-from pdflangsung import entry, left, back, end
 
 from telegrambot.telegrambot import send_warning, start_bot_in_thread, get_chat_id
 

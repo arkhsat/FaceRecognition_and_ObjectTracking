@@ -1,102 +1,92 @@
 import jinja2
 import pdfkit
 from firebase_admin import db
-from pathlib import Path
+import os
+
+# Temporary storage for collected data
+event_data = {}
 
 
 def pdd(getId, current_date, current_time, time_range, event):
-    print("ppp")
+    try:
+        global event_data
 
-    ref = db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}')
-    data = ref.get()
+        print(f"Processing event: {event} for ID: {getId}")
 
-    if data:
-        # key for the last
+        # Firebase reference
+        ref = db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}')
+        data = ref.get()
+
+        if not data:
+            print(f"No data found for ID {getId}, event {event}.")
+            return
+
+        # Get the latest key and its value
         latest_key = max(data.keys())
         value = data[latest_key]
 
-        # get the detail of data
-        name = value.get('name')
-        time = value.get('time')
-        image_url = value.get('image_url')
-        late = value.get('late_time')
-        ranges = value.get('time_range_for_session')
+        # Store data for each event
+        if event in ["entered", "left", "return", "end"]:
+            event_data[event] = {
+                "name": value.get('name', 'Unknown'),
+                "event_time": value.get('time', 'Unknown'),
+                "image_url": value.get('image_url', ''),
+                "late_time": value.get('late_time', 'N/A'),
+                "time_range_for_session": value.get('time_range_for_session', 'N/A'),
+                "left_time": value.get('left_time', 'N/A'),
+                "total_duration": value.get('total_duration', 'N/A'),
+                "Total_Time_Late": value.get('Total_Time_Late', 'N/A'),
+                "Total_Time_Left": value.get('Total_Time_Left', 'N/A'),
+                "Total_Time_Lecture": value.get('Total_Time_Lecture', 'N/A'),
+            }
 
-        # Begin
-        name = {name}
-        ID = db.reference(f'Person/{getId}').get()
-        time_range = {ranges}
+        # If event is "end", generate the PDF
+        if event == "left":
+            print("Starting PDF generation...")
 
-        # Entered The Room
-        img1 = {image_url}
-        time1 = {time}
-        late = {late}
+            # Fetch additional information from Firebase
+            ID = db.reference(f'Person/{getId}/title').get()
 
-        # # Left The Room
-        # img2 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/left/image_url').get()
-        # time2 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/left/time').get()
-        #
-        # # Return The Room
-        # img3 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/return/image_url').get()
-        # time3 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/return/time').get()
-        # left1 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/return/left').get()
+            # Prepare context for the template
+            context = {
+                'name': event_data.get('entered', {}).get('name', 'Unknown'),
+                'ID': ID,
+                'time_range': event_data.get('entered', {}).get('time_range_for_session', 'N/A'),
+                'img1': event_data.get('entered', {}).get('image_url', ''),
+                'time1': event_data.get('entered', {}).get('event_time', 'Unknown'),
+                'late': event_data.get('entered', {}).get('late_time', 'N/A'),
+                'img2': event_data.get('left', {}).get('image_url', ''),
+                'time2': event_data.get('left', {}).get('event_time', 'Unknown'),
+                'img3': event_data.get('return', {}).get('image_url', ''),
+                'time3': event_data.get('return', {}).get('event_time', 'Unknown'),
+                'left1': event_data.get('return', {}).get('left_time', 'N/A'),
+                'img4': event_data.get('end', {}).get('image_url', ''),
+                'time4': event_data.get('end', {}).get('event_time', 'Unknown'),
+                'dur': event_data.get('end', {}).get('total_duration', 'N/A'),
+                'late2': event_data.get('end', {}).get('Total_Time_Late', 'N/A'),
+                'left2': event_data.get('end', {}).get('Total_Time_Left', 'N/A'),
+                'tot': event_data.get('end', {}).get('Total_Time_Lecture', 'N/A')
+            }
 
-        # End of Time
-        # img4 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/end/image_url').get()
-        # time4 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/end/time').get()
-        # dur = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/end/Duration').get()
-        # late2 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/end/Total_Time_Late').get()
-        # left2 = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/end/Total_Time_Left').get()
-        # tot = db.reference(f'PersonEvents/{current_date}/{person_id}/{time_range}/end/Total_Time_Lecture').get()
+            # Jinja2 template rendering
+            template_loader = jinja2.FileSystemLoader('./')
+            template_env = jinja2.Environment(loader=template_loader)
+            template = template_env.get_template("pdf.html")
+            output_text = template.render(context)
 
-        # context = {'name': name, 'ID': ID, 'time_range': time_range, 'img1': img1, 'img2': img2, 'img3': img3, 'img4': img4,
-        #            'time1': time1, 'time2': time2, 'time3': time3, 'time4': time4, 'late': late, 'late2': late2, 'left1':
-        #                left1, 'left2': left2, 'dur': dur, 'tot': tot}
+            # For output directory
+            output_dir = os.path.join('pdf', 'pdffile', current_date, getId, time_range)
+            os.makedirs(output_dir, exist_ok=True)
 
-        # context = {'name': name, 'ID': ID, 'time_range': time_range, 'img1': img1, 'img2': img2, 'img3': img3,
-        #            'time1': time1, 'time2': time2, 'time3': time3, 'late': late, 'left1': left1}
+            # Generate PDF
+            config = pdfkit.configuration(wkhtmltopdf="/usr/local/bin/wkhtmltopdf")
+            pdf_filename = os.path.join(output_dir, f'monitoring - {getId} - {current_date} - {current_time}.pdf')
+            pdfkit.from_string(output_text, pdf_filename, configuration=config)
 
-        context = {'name': name, 'ID': ID, 'time_range': time_range, 'img1': img1,
-                   'time1': time1, 'late': late}
+            print(f"Success: PDF created at {pdf_filename}")
 
-        # context = {'img1': img1}
+            # Clear event data after generating the PDF
+            event_data = {}
 
-        template_loader = jinja2.FileSystemLoader(f'./')
-        template_env = jinja2.Environment(loader=template_loader)
-
-        template = template_env.get_template("pdf.html")
-        output_text = template.render(context)
-
-        config = pdfkit.configuration(wkhtmltopdf="/usr/local/bin/wkhtmltopdf")
-        pdfkit.from_string(output_text, f'monitoring - {getId} - {current_time}.pdf', configuration=config)
-
-
-# name = "rendo"
-# ID = "1234"
-# time_range = "10"
-# img1 = "11"
-# time1= "11"
-# late= "11"
-# img2= "11"
-# time3= "11"
-# time4= "11"
-# left1= "11"
-# img4= "11"
-# time5= "11"
-# dur= "11"
-# late2= "11"
-# left2= "11"
-# tot= "11"
-#
-# context = {'name': name, 'ID': ID, 'time_range': time_range, 'img1': img1, 'img2':
-# img2, 'img4': img4, 'time1': time1, 'time3': time1, 'time4': time4, 'time5': time5,
-# 'late': late, 'late2': late2, 'left1': left1, 'left2': left2, 'dur': dur, 'tot': tot}
-#
-# template_loader = jinja2.FileSystemLoader('./')
-# template_env = jinja2.Environment(loader=template_loader)
-#
-# template = template_env.get_template("pdf.html")
-# output_text = template.render(context)
-#
-# config = pdfkit.configuration(wkhtmltopdf="/usr/local/bin/wkhtmltopdf")
-# pdfkit.from_string(output_text, 'pdf_generated.pdf', configuration = config)
+    except Exception as e:
+        print(f"An error occurred: {e}")

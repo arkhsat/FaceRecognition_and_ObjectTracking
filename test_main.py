@@ -22,7 +22,7 @@ from personeventdb import (update_to_db_for_left, update_to_db_for_return, updat
 
 # FOR PDF
 # from pdflangsung import pdd  # for PDF, the file is in the root
-# from pdf.pdfgene import pfd  # from pdf folder
+from pdf.pdfgene import pdd  # pdf_entry, pdf_left, pdf_return, pdf_end  # from pdf folder
 
 
 # FOR CSV
@@ -94,20 +94,8 @@ while True:
                 x, y, w, h = [int(v) for v in bbox]
                 scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = is_scheduled(
                     tracked_id)
-                # result = is_scheduled(tracked_id)
 
-                # if result:
-                #     scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = result
-                # else:
-                #     scheduled_start_time = scheduled_end_time = current_time = time_range = current_date = None
-                #     print("No active schedule found.")
-                # print(is_scheduled(tracked_id))
-                # schedule_times = is_scheduled(tracked_id)
-                # if schedule_times:
-                #     for scheduled_start_time, scheduled_end_time, current_time, time_range,
-                #     current_date in schedule_times:
-
-                if current_time == scheduled_end_time:
+                if current_time >= scheduled_end_time:
                     print("Just Checking if this code work")
                     # Capture and update to 'end'
                     if previous_capture_status.get(tracked_id) in ['entered', 'left', 'return']:
@@ -129,6 +117,7 @@ while True:
                         #                      current_times_str)  # THIS ONE FOR SQLITE
                         get_event_end(current_date, getId, time_range, 'end')
                         csv_code(tracked_id, time_range, current_times_str, lates, lefts, total)
+                        pdd(getId, current_date, current_time, time_range, 'end')
 
                 if x + w < RIGHT_ZONE:
                     # scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = is_scheduled(
@@ -157,8 +146,9 @@ while True:
                         update_to_db_for_return(tracked_id, current_date, time_range, 'return', left, current_time, image_url)  # FOR FIREBASE
                         get_event_return(current_date, getId, time_range, 'return')
                         # update_to_db_for_return(tracked_id, current_date, time_range, 'return', left, current_time, image_url)  # FOR SQLITE
+                        pdd(getId, current_date, current_time, time_range, 'return')
                         # pdd(tracked_id, 'return', time_range, current_date, current_time)
-                        # display_image_from_url(image_url)
+                        # display_image_from_url(image_url) # for display the image
 
                     elif previous_capture_status.get(tracked_id) not in ['entered', 'return', 'left', 'end']:
                         image_url = (capture_and_upload(img, tracked_id, 'entered'))
@@ -175,7 +165,7 @@ while True:
                         # update_to_db_for_late(tracked_id, current_date, time_range, 'entered', lates, current_time)  # FOR SQLITE
                         get_event_entered(current_date, getId, time_range, 'entered')
                         # pfd(tracked_id, 'entered', current_time, lates)
-                        # pdd(tracked_id, 'entered', current_date, time_range, current_time)
+                        pdd(tracked_id, current_date, current_time, time_range, 'entered')
 
                 elif x + w > RIGHT_ZONE:
                     if is_tracking:
@@ -190,7 +180,7 @@ while True:
                             update_to_db_for_left(tracked_id, current_date, time_range, 'left', current_time, image_url)  # FOR FIREBASE
                             # update_to_db_for_left(tracked_id, current_date, time_range, 'left', current_time)  # FOR SQLITE
                             get_event_left(current_date, getId, time_range, 'left')
-
+                            pdd(tracked_id, current_date, current_time, time_range, 'left')
                             is_tracking = False
 
                 # elif x + w < RIGHT_ZONE or x + w > RIGHT_ZONE:

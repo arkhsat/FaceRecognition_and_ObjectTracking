@@ -31,7 +31,7 @@ def capture_and_upload(img, getId, event):
             blob = bucket.blob(f'Capture/{current_date}/{getId}/{time_range}/{event}/{img_name}')
 
             blob.upload_from_filename(local_img_path)
-            image_url = blob.generate_signed_url(expiration=datetime.utcnow() + timedelta(seconds=3600))
+            image_url = blob.generate_signed_url(expiration=datetime.utcnow() + timedelta(seconds=86400))
             print(f"Image URL generated: {image_url}")
             return image_url
 
@@ -46,7 +46,7 @@ def capture_and_upload(img, getId, event):
             bucket = storage.bucket()
             blob = bucket.blob(f'Capture/{current_date}/{getId}/{time_range}/{event}/{img_name}')
             blob.upload_from_filename(local_img_path)
-            image_url = blob.generate_signed_url(expiration=datetime.utcnow() + timedelta(seconds=3600))
+            image_url = blob.generate_signed_url(expiration=datetime.utcnow() + timedelta(seconds=86400))
             print(f"Image URL generated: {image_url}")
 
             return image_url

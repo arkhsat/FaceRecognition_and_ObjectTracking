@@ -52,10 +52,12 @@ def is_scheduled(person_id):
             if str(scheduled_id) == str(person_id):
                 if scheduled_start_time <= current_time <= scheduled_end_time:
                     return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
-                elif scheduled_end_time <= current_time:
-                    print("OVERRR")
-                    return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
-
+                # elif scheduled_end_time <= current_time:
+                #     print("OVERRR")
+                #     return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
+                # elif current_time < scheduled_start_time:
+                #     print(f"Upcoming schedule for ID {value} at {time_range}.")
+                #     break
 
     else:
         print("No Schedule")

@@ -4,7 +4,7 @@ from firebase_admin import db
 
 cred = credentials.Certificate("serviceAccountKey1.json")
 firebase_admin.initialize_app(cred, {
-    
+    'databaseURL': "https://testing1-5b399-default-rtdb.firebaseio.com/"
 })
 
 ref = db.reference('Person')
@@ -25,6 +25,21 @@ data = {
             "name": "Trump",
             "title": "D4563"
         },
+    "144":
+        {
+            "name": "Hardwin",
+            "title": "D4564"
+        },
+    "155":
+        {
+            "name": "Indra",
+            "title": "D4565"
+        },
+    "166":
+        {
+            "name": "Benny",
+            "title": "D4566"
+        }
 }
 
 for key, value in data.items():

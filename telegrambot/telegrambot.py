@@ -227,16 +227,22 @@ def send_pdf(current_date, getId, time_range, event):
     CHAT_ID = [CHAT_ID_PERSON, CHAT_ID_ADMIN]
 
     ref = db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}/PDF')
+    ref_data = ref.get()
 
     if not CHAT_ID:
         print(f"Error: CHAT_ID not found for person_id {getId}. Unable to send warning.")
         return
 
     try:
+        # pdf_url = ref.get()
+        # if not pdf_url:
+        #     print(f"No PDF URL found at {ref.path}")
+        #     return
+
         for chat_id in CHAT_ID:
             if chat_id:
-                print(f"Sending warning to CHAT_ID {chat_id}")
-                bot.send_document(chat_id, ref)
+                print(f"Sending PDF to CHAT_ID {chat_id}")
+                bot.send_document(chat_id, ref_data)
     except Exception as e:
         print(f"Failed to send message: {e}")
 

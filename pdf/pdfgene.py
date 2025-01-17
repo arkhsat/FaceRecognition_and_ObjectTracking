@@ -1,7 +1,8 @@
 import jinja2
 import pdfkit
-from firebase_admin import db
+from firebase_admin import db, storage
 import os
+from datetime import datetime, timedelta
 
 # Temporary storage for collected data
 event_data = {}
@@ -67,11 +68,18 @@ def pdd(getId, current_date, current_time, time_range, event):
                 'left2': event_data.get('end', {}).get('Total_Time_Left', 'N/A'),
                 'tot': event_data.get('end', {}).get('Total_Time_Lecture', 'N/A')
             }
+            print(f"event_data = {event_data}")
 
             # Jinja2 template rendering
-            template_loader = jinja2.FileSystemLoader('./')
+            template_loader = jinja2.FileSystemLoader('./')  # Adjust path if needed
             template_env = jinja2.Environment(loader=template_loader)
-            template = template_env.get_template("pdf.html")
+
+            try:
+                template = template_env.get_template("pdf/pdf.html")  # Ensure file exists
+            except jinja2.exceptions.TemplateNotFound:
+                print("Template 'pdf.html' not found.")
+                return
+
             output_text = template.render(context)
 
             # For output directory
@@ -87,6 +95,14 @@ def pdd(getId, current_date, current_time, time_range, event):
 
             # Clear event data after generating the PDF
             event_data = {}
+
+            # Save to Storage
+            bucket = storage.bucket()
+            blob = bucket.blob(f'PDF/{current_date}/{getId}/{time_range}')
+
+            blob.upload_from_filename(pdf_filename)
+            pdf_url = blob.generate_signed_url(expiration=datetime.utcnow() + timedelta(seconds=86400))
+            return pdf_url
 
     except Exception as e:
         print(f"An error occurred: {e}")

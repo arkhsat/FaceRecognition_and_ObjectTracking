@@ -51,8 +51,6 @@ while True:
         matchIndex = np.argmin(faceDis)
         # print("Match Index", matchIndex)
 
-            # print("Knowing the Face")
-            # print(id[matchindex])
         y1, x2, y2, x1 = faceLoc
         y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4  # scale up the face location
 

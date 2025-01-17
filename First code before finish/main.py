@@ -87,7 +87,7 @@ def is_scheduled(person_id):
                 if scheduled_start_time <= current_time <= scheduled_end_time:
                     return scheduled_start_time, scheduled_end_time  # The person is scheduled for the current time
 
-                elif (current_time >= scheduled_end_time and previous_capture_status.get(person_id) in
+                elif (current_time == scheduled_end_time and previous_capture_status.get(person_id) in
                       ['entered', 'left', 'return']):
                     # print(f'currentEND = {current_time}')
                     image_url = capture_and_upload(img, person_id, 'end')

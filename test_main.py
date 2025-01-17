@@ -31,7 +31,7 @@ from CSV.csvencode import csv_code  # the file is in the folder
 
 
 # FOR TELEBOT
-from telegrambot.telegrambot import get_event_entered, get_event_left, get_event_return, get_event_end
+from telegrambot.telegrambot import get_event_entered, get_event_left, get_event_return, get_event_end, send_pdf
 
 
 # Webcam setup
@@ -95,33 +95,42 @@ while True:
                 scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = is_scheduled(
                     tracked_id)
 
-                if current_time >= scheduled_end_time:
+                print(f"Current time: {current_time}")
+                print(f"schedule end time: {scheduled_end_time}")
+
+                # Capture and update to 'end'
+                if current_time == scheduled_end_time and previous_capture_status.get(tracked_id) in ['entered', 'left', 'return']:
                     print("Just Checking if this code work")
-                    # Capture and update to 'end'
-                    if previous_capture_status.get(tracked_id) in ['entered', 'left', 'return']:
-                        print("Just Checking if this code work")
-                        current_times_str = current_time.strftime("%H:%M:%S")
-                        image_url = capture_and_upload(img, tracked_id, 'end')
-                        previous_capture_status[tracked_id] = 'end'
-                        stop_tracking(tracked_id)
 
-                        # Display the capture image or take further actions
-                        dur = count_duration(tracked_id, scheduled_start_time, scheduled_end_time)
-                        lates = count_late_time(tracked_id, scheduled_start_time)
-                        lefts = count_left_time_total(tracked_id)
-                        total = total_time(tracked_id)
-                        left_times = count_left_time(tracked_id)
-                        update_to_db_for_end(tracked_id, current_date, time_range, 'end', lates, dur, lefts, total,
-                                             current_times_str, image_url)  # FOR FIREBASE
-                        # update_to_db_for_end(tracked_id, current_date, time_range, 'end', lates, dur, lefts, total,
-                        #                      current_times_str)  # THIS ONE FOR SQLITE
-                        get_event_end(current_date, getId, time_range, 'end')
-                        csv_code(tracked_id, time_range, current_times_str, lates, lefts, total)
-                        pdd(getId, current_date, current_time, time_range, 'end')
+                    current_times_str = current_time.strftime("%H:%M:%S")
+                    image_url = capture_and_upload(img, tracked_id, 'end')
+                    previous_capture_status[tracked_id] = 'end'
+                    # stop_tracking(tracked_id)
 
-                        # for get pdf url and put in firebase
-                        # pdf_url = pdd(getId, current_date, current_time, time_range, 'end')
-                        # update_pdf(getId, current_date, time_range, 'end', pdf_url)
+                    # Display the capture image or take further actions
+                    dur = count_duration(tracked_id, scheduled_start_time, scheduled_end_time)
+                    lates = count_late_time(tracked_id, scheduled_start_time)
+                    lefts = count_left_time_total(tracked_id)
+                    total = total_time(tracked_id)
+                    left_times = count_left_time(tracked_id)
+                    update_to_db_for_end(tracked_id, current_date, time_range, 'end', lates, dur, lefts, total,
+                                         current_times_str, image_url)  # FOR FIREBASE
+                    # update_to_db_for_end(tracked_id, current_date, time_range, 'end', lates, dur, lefts, total,
+                    #                      current_times_str)  # THIS ONE FOR SQLITE
+                    get_event_end(current_date, getId, time_range, 'end')
+                    csv_code(tracked_id, time_range, current_times_str, lates, lefts, total)
+                    pdd(getId, current_date, current_time, time_range, 'end')
+
+                    # for get pdf url and put in firebase
+                    pdf_url = pdd(getId, current_date, current_time, time_range, 'end')
+                    update_pdf(getId, current_date, time_range, 'end', pdf_url)
+
+                    # if current_time > scheduled_end_time:
+                    #     print(f"Schedule ended for ID: {tracked_id}, stopping tracker.")
+                    #     stop_tracking(tracked_id)
+                    #     trackers.pop(i)
+                    #     tracked_ids.pop(i)
+                    #     continue
 
                 if x + w < RIGHT_ZONE:
                     # scheduled_start_time, scheduled_end_time, current_time, time_range, current_date = is_scheduled(
@@ -136,6 +145,7 @@ while True:
 
                     # Update capture if leaving or entering
                     # while True:
+
                     if (previous_capture_status.get(tracked_id) == 'left' and
                             previous_capture_status.get(tracked_id) != "return"):
                         # print(f"current_time11: {current_time} (type: {type(current_time)})")
@@ -189,6 +199,7 @@ while True:
 
                             pdf_url = pdd(getId, current_date, current_time, time_range, 'left')
                             update_pdf(getId, current_date, time_range, 'left', pdf_url)
+                            send_pdf(current_date, getId, time_range, 'left')
 
                 # elif x + w < RIGHT_ZONE or x + w > RIGHT_ZONE:
                 #     print("test if this work i guess")
@@ -249,10 +260,7 @@ while True:
 
         if matches[matchIndex] and (x1 + (x2 - x1) < RIGHT_ZONE):
             getId = id[matchIndex]
-            if is_scheduled(str(getId)):  # Only allow detection if the person is scheduled
-
-                # if getId not in tracked_ids:
-                # if not is_tracking and (x1 + (x2 - x1) < RIGHT_ZONE):
+            if is_scheduled(str(getId)):  # Only allow detection if the person is in the scheduled
                 if getId not in tracked_ids:
                     # New person detected, start tracking
                     cvzone.cornerRect(img, (x1, y1, x2 - x1, y2 - y1), rt=1,

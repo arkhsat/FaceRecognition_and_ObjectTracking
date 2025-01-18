@@ -5,11 +5,8 @@ import json
 # FIREBASE
 from firebase_admin import db
 
-BOT_TOKEN = "7543908439:AAFn3aK-CQLjhMVsIXgrj599i5nS4-OA35M"
+BOT_TOKEN = "Put your bot token here"
 bot = telebot.TeleBot(BOT_TOKEN)
-# CHAT_ID = "5091903369"
-MESSAGE = "This is Attendance Monitoring System of Binus University"
-
 
 # Get ID from firebase
 def get_chat_id(person_id):
@@ -23,7 +20,7 @@ def get_chat_id(person_id):
 # FOR GIVEN WARNINGS
 def send_warning(person_id, alert_message):
     CHAT_ID_PERSON = get_chat_id(person_id)  # Replace with the actual chat ID
-    CHAT_ID_ADMIN = "5091903369"
+    CHAT_ID_ADMIN = "put admin chat_id here"
     CHAT_ID = [CHAT_ID_PERSON, CHAT_ID_ADMIN]
     if not CHAT_ID:
         print(f"Error: CHAT_ID not found for person_id {person_id}. Unable to send warning.")
@@ -60,14 +57,6 @@ def get_event_entered(current_date, getId, time_range, event):
         time = value.get('time')
         late_time = value.get('late_time')
         image_url = value.get('image_url')
-
-        # Tampilkan informasi
-        # print(f"Key: {latest_key}")
-        # print(f"Name: {name}")
-        # print(f"Event: {event_name}")
-        # print(f"Time: {time}")
-        # print(f"Late Time: {late_time}")
-        # print(f"Image URL: {image_url}")
 
         # Send massage
         message = f"{name} entered the room at {time}\n"
@@ -223,7 +212,7 @@ def get_event_end(current_date, getId, time_range, event):
 
 def send_pdf(current_date, getId, time_range, event):
     CHAT_ID_PERSON = get_chat_id(getId)  # Replace with the actual chat ID
-    CHAT_ID_ADMIN = "5091903369"
+    CHAT_ID_ADMIN = "Put admin chat_id here"
     CHAT_ID = [CHAT_ID_PERSON, CHAT_ID_ADMIN]
 
     ref = db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}/PDF')
@@ -301,39 +290,6 @@ def log_user(message):
         bot.reply_to(message, f"Your CHAT_ID has been added to the Person database!")
     else:
         bot.reply_to(message, f"No matching person found with the name {first_name} in the database!")
-
-    # bot.reply_to(message, "You have been logged!")
-
-
-# def get_id(getId):
-#     ref = db.reference(f'Person/{getId}')
-#
-#     return ref
-#
-#
-# @bot.message_handler(func=lambda message: True)
-# def log_user(message):
-#     user_id = message.chat.id
-#
-#     db.reference(f'Person/{getId}').update({
-#         'CHAT_ID': user_id,
-#     })
-#
-#     bot.reply_to(message, "You have been logged!")
-#
-#     # @bot.message_handler(func=lambda msg: True)
-#     # def get_person_id(msg):
-#     #     getId = msg.text  # Ambil teks yang dimasukkan pengguna sebagai getId
-#     #     if not db.reference(f'Person/{getId}').get():
-#     #         bot.reply_to(msg, "Person ID not found in the database.")
-#     #         return
-#     #
-#     #     # Simpan chat_id ke database
-#     #     db.reference(f'Person/{getId}').update({
-#     #         'chat_id': user_id,
-#     #     })
-#     #     bot.reply_to(msg, f"You have been logged with Person ID: {getId}")
-
 
 # Store Users in a Local File (Optional)
 @bot.message_handler(func=lambda message: True)

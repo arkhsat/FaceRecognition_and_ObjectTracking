@@ -2,6 +2,8 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 from datetime import datetime, timedelta
+import time
+
 import os
 
 base_dir = os.path.dirname(os.path.abspath(__file__))  # Lokasi file schedule.py
@@ -31,7 +33,6 @@ def is_scheduled(person_id):
     # print(schedule_data)
 
     if schedule_data:
-
         for time_range, scheduled_id in schedule_data.items():
             start_time, end_time = time_range.split(' - ')
             start_hour, start_minute = start_time.split(':')
@@ -51,16 +52,12 @@ def is_scheduled(person_id):
 
             if str(scheduled_id) == str(person_id):
                 if scheduled_start_time <= current_time <= scheduled_end_time:
-                    return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
-                # elif scheduled_end_time <= current_time:
-                #     print("OVERRR")
+                    return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date,
+                # elif current_time > scheduled_end_time:
+                #     time.sleep(10)
                 #     return scheduled_start_time, scheduled_end_time, current_time, time_range, current_date
-                # elif current_time < scheduled_start_time:
-                #     print(f"Upcoming schedule for ID {value} at {time_range}.")
-                #     break
-
-    else:
-        print("No Schedule")
-
+                # elif current_time > scheduled_end_time:
+                #     scheduled_start_time = None
+                #     scheduled_end_time = None
+                #     return scheduled_start_time, scheduled_end_time
     return None
-

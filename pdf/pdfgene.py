@@ -42,7 +42,7 @@ def pdd(getId, current_date, current_time, time_range, event):
             }
 
         # If event is "end", generate the PDF
-        if event == "left":
+        if event == "end":
             print("Starting PDF generation...")
 
             # Fetch additional information from Firebase

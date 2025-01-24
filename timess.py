@@ -1,4 +1,4 @@
-from datetime import datetime 
+from datetime import datetime, timedelta
 
 from telegrambot.telegrambot import send_warning, start_bot_in_thread, get_chat_id
 
@@ -24,14 +24,13 @@ duration = {}
 
 # for counting the duration of class
 def count_duration(person_id, schedule_start_time, schedule_end_time):
-    # schedule_start_time, schedule_end_time = is_scheduled(tracked_id)
     print(f" {schedule_start_time} - {schedule_end_time}")
     scheduled_duration = (schedule_end_time - schedule_start_time).total_seconds()
     duration[person_id] = scheduled_duration
     if schedule_start_time and schedule_end_time:
         print(f"Duration Of Class: {format_duration(scheduled_duration)}")
     print(f"Duration in second: {scheduled_duration}")
-    return duration
+    return scheduled_duration
 
 
 # For timer time late amd giving Warning
@@ -45,7 +44,7 @@ def start_late_timer(person_id):
     if person_id not in late_timers or late_timers[person_id] is None:
         late_timers[person_id] = current_time  # Start the late timer
         timer_active[person_id] = True
-        # late_timers[person_id] = scheduled_start_time  # Start 8the late timer
+
     else:
         late_time = (current_time - late_timers[person_id]).total_seconds()
         if late_time >= 5 and person_id not in late_warnings:  # 600 seconds = 10 minutes
@@ -91,6 +90,7 @@ def count_late_time(person_id, schedule_end_time):
 
     # Get the late_time from total_time_late dict
     late[person_id] = total_time_late.get(person_id)
+    test = format_duration(late[person_id])
 
     # Calculate actual entry time base on timer
     print(f"Late Time for1 {person_id}: {format_duration(late[person_id])}")
@@ -100,11 +100,13 @@ def count_late_time(person_id, schedule_end_time):
     time_take_tot = (time_take - schedule_end_times).total_seconds()
     if time_take_tot > late[person_id]:
         late[person_id] = time_take_tot
+        test = format_duration(time_take_tot)
         # time_take_tot = late_time
 
     print(f"Late Time for2 {person_id}: {format_duration(late[person_id])}")
 
-    return late[person_id]
+    return test
+    # return late[person_id]
 
 
 def start_left_timer(person_id):
@@ -192,15 +194,22 @@ def total_time(tracked_id):
 
 
 def format_duration(seconds):
+    td = timedelta(seconds=seconds)
+    total_seconds = int(td.total_seconds())
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
 
-    if seconds < 60:
-        return f"{seconds:.2f} seconds"
-    elif seconds < 3600:
-        minutes = seconds / 60
-        return f"{minutes:.2f} minutes"
-    else:
-        hours = seconds / 3600
-        return f"{hours:.2f} hours"
+    # return str(timedelta(seconds=seconds))
+
+    # if seconds < 60:
+    #     return f"{seconds:.2f} seconds"
+    # elif seconds < 3600:
+    #     minutes = seconds / 60
+    #     return f"{minutes:.2f} minutes"
+    # else:
+    #     hours = seconds / 3600
+    #     return f"{hours:.2f} hours"
 
 
 start_bot_in_thread()

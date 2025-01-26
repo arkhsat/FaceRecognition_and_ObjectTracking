@@ -8,26 +8,17 @@ from firebase_admin import storage
 def csv_code(person_id, time_range, current_time, late_time, total_time_left, total_time_lecture):
     current_date = datetime.now().strftime("%Y-%m-%d")
 
-    late_time_timedelta = timedelta(seconds=late_time)
-    formatted_late_time = str(late_time_timedelta).split('.')[0]
-
-    total_time_left_timedelta = timedelta(seconds=total_time_left)
-    formatted_total_time_left = str(total_time_left_timedelta).split('.')[0]
-
-    total_time_timedelta = timedelta(seconds=total_time_lecture)
-    formatted_total_time = str(total_time_timedelta).split('.')[0]
-
     data = [
         {
             "Date": current_date,
             "ID": person_id,
             "Time_Range": time_range,
             "Time_first_in": current_time,
-            "Late_Time": formatted_late_time,
+            "Late_Time": late_time,
             # "Time_left": time_left,
-            "Total_Left_Time": formatted_total_time_left,
+            "Total_Left_Time": total_time_left,
             # "Time_return": time_return,
-            "Total_Time": formatted_total_time,
+            "Total_Time": total_time_lecture,
         }
     ]
 
@@ -58,4 +49,3 @@ def csv_code(person_id, time_range, current_time, late_time, total_time_left, to
 
     blob.upload_from_filename(str(file_name))
     print("File CSV berhasil diunggah ke Firebase Storage.")
-

@@ -1,4 +1,3 @@
-from datetime import datetime
 from firebase_admin import db
 
 

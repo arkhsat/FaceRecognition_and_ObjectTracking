@@ -26,11 +26,12 @@ duration = {}
 def count_duration(person_id, schedule_start_time, schedule_end_time):
     print(f" {schedule_start_time} - {schedule_end_time}")
     scheduled_duration = (schedule_end_time - schedule_start_time).total_seconds()
+    scheduledb = formating(scheduled_duration)
     duration[person_id] = scheduled_duration
     if schedule_start_time and schedule_end_time:
         print(f"Duration Of Class: {format_duration(scheduled_duration)}")
     print(f"Duration in second: {scheduled_duration}")
-    return scheduled_duration
+    return scheduledb
 
 
 # For timer time late amd giving Warning
@@ -90,7 +91,7 @@ def count_late_time(person_id, schedule_end_time):
 
     # Get the late_time from total_time_late dict
     late[person_id] = total_time_late.get(person_id)
-    test = format_duration(late[person_id])
+    test = formating(late[person_id])
 
     # Calculate actual entry time base on timer
     print(f"Late Time for1 {person_id}: {format_duration(late[person_id])}")
@@ -100,7 +101,7 @@ def count_late_time(person_id, schedule_end_time):
     time_take_tot = (time_take - schedule_end_times).total_seconds()
     if time_take_tot > late[person_id]:
         late[person_id] = time_take_tot
-        test = format_duration(time_take_tot)
+        test = formating(time_take_tot)
         # time_take_tot = late_time
 
     print(f"Late Time for2 {person_id}: {format_duration(late[person_id])}")
@@ -153,25 +154,30 @@ def delete_left_timer(person_id):
 
 def count_left_time(person_id):
     left_time = start_left_timer(person_id)
+    leftdb = formating(left_time)
 
     # Showing the total time outside
     print(f"Person {person_id} left room for {format_duration(left_time)}")
 
-    return left_time
+    return leftdb
 
 
 def count_left_time_total(person_id):
     left_time = start_left_timer(person_id)
+    # lefttotdb = formating(left_time)
 
     if person_id not in total_left_times:
         total_left_times[person_id] = left_time
+        lefttotdb = formating(total_left_times[person_id])
         print(f"total1: {total_left_times[person_id]}")
     else:
         total_left_times[person_id] += left_time
+        lefttotdb = formating(total_left_times[person_id])
 
         print(f"total: {total_left_times[person_id]}")
+        print(f"total2: {lefttotdb}")
 
-    return total_left_times[person_id]
+    return lefttotdb
 
 
 # For count the total time
@@ -187,29 +193,30 @@ def total_time(tracked_id):
     print(f"Time in outside ril= {outside}")
     # Total time
     total = scheduled_duration - late_time - outside
+    totaldb = formating(total)
     # Display result
     print(f"Total {tracked_id} in the room {format_duration(total)}")
 
-    return total
+    return totaldb
 
 
 def format_duration(seconds):
+    if seconds < 60:
+        return f"{seconds:.2f} seconds"
+    elif seconds < 3600:
+        minutes = seconds / 60
+        return f"{minutes:.2f} minutes"
+    else:
+        hours = seconds / 3600
+        return f"{hours:.2f} hours"
+
+
+def formating(seconds):
     td = timedelta(seconds=seconds)
     total_seconds = int(td.total_seconds())
     hours, remainder = divmod(total_seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
     return f"{hours:02}:{minutes:02}:{seconds:02}"
-
-    # return str(timedelta(seconds=seconds))
-
-    # if seconds < 60:
-    #     return f"{seconds:.2f} seconds"
-    # elif seconds < 3600:
-    #     minutes = seconds / 60
-    #     return f"{minutes:.2f} minutes"
-    # else:
-    #     hours = seconds / 3600
-    #     return f"{hours:.2f} hours"
 
 
 start_bot_in_thread()

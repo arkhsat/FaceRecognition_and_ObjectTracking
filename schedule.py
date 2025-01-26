@@ -60,4 +60,5 @@ def is_scheduled(person_id):
                 #     scheduled_start_time = None
                 #     scheduled_end_time = None
                 #     return scheduled_start_time, scheduled_end_time
+    # return None, None, current_time, None, current_date
     return None

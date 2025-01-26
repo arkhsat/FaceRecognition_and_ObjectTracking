@@ -117,7 +117,6 @@ while True:
                     #                      current_times_str)  # THIS ONE FOR SQLITE
                     get_event_end(current_date, getId, time_range, 'end')
                     csv_code(tracked_id, time_range, current_times_str, lates, lefts, total)
-                    pdd(getId, current_date, current_time, time_range, 'end')
 
                     # for get pdf url and put in firebase
                     pdf_url = pdd(getId, current_date, current_time, time_range, 'end')

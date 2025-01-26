@@ -35,7 +35,7 @@ def pdd(getId, current_date, current_time, time_range, event):
                 "late_time": value.get('late_time', 'N/A'),
                 "time_range_for_session": value.get('time_range_for_session', 'N/A'),
                 "left_time": value.get('left_time', 'N/A'),
-                "total_duration": value.get('total_duration', 'N/A'),
+                "total_duration": value.get('Duration', 'N/A'),  # Check This
                 "Total_Time_Late": value.get('Total_Time_Late', 'N/A'),
                 "Total_Time_Left": value.get('Total_Time_Left', 'N/A'),
                 "Total_Time_Lecture": value.get('Total_Time_Lecture', 'N/A'),

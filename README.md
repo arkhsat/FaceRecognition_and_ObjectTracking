@@ -7,7 +7,7 @@ This project implements a face recognition system integrated with object trackin
 - **Real-Time Face Recognition**: Utilizes advanced algorithms to recognize faces in real-time.
 - **Object Tracking**: Tracks the movement of recognized individuals across frames.
 - **Attendance Monitoring**: Records attendance based on time intervals (arrival, departure, and total time).
-- **Alerts for Late Arrivals**: Notifies users if an individual arrives late. (Soon alret in using bot Telegram)
+- **Alerts for Late Arrivals**: Notifies users if an individual arrives late.
 - **Firebase Integration**: Stores attendance data and user information in Firebase Realtime Database for easy access and management.
 
 ## Technologies Used

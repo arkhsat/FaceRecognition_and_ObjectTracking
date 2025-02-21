@@ -1,5 +1,11 @@
 # Face Recognition with Object Tracking
 
+
+
+https://github.com/user-attachments/assets/ff2b870b-19d3-41c3-99dc-e72a1e6c853d
+
+
+
 ## Overview
 This project implements a face recognition system integrated with object tracking capabilities. It tracks individuals in real-time and monitors their attendance based on specified time intervals. If a person is late, leaves early, or reaches the end of the designated time, the system will trigger alerts. The data is stored and managed using Firebase Realtime Database.
 

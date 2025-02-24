@@ -1,11 +1,10 @@
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
-# from firebase_admin import storage
 
 cred = credentials.Certificate("serviceAccountKey1.json")
 firebase_admin.initialize_app(cred, {
-    'databaseURL': "https://testing1-5b399-default-rtdb.firebaseio.com/"
+    'databaseURL': "Insert your URL database"
 })
 
 ref = db.reference('schedule')
@@ -45,7 +44,6 @@ data = {
         },
     "2025 - 01 - 17":
         {
-            # "10:27 - 12:29": "111",
             "18:30 - 20:00": "111",
         },
     "2025 - 01 - 23":
@@ -58,7 +56,6 @@ data = {
         },
     "2025 - 01 - 26":
         {
-            # "15:00 - 22:52": "111",
             "16:00 - 16:31": "111",
             "16:50 - 16:56": "111",
         },

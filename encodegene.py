@@ -2,10 +2,8 @@ import os
 import cv2
 import face_recognition
 import pickle
-# import matplotlib.pyplot as plt
 import firebase_admin
 from firebase_admin import credentials
-# from firebase_admin import db
 from firebase_admin import storage
 
 
@@ -40,20 +38,8 @@ def findencodigs(imageslist):
     for img in imageslist:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # from BGR TO RGB
 
-        # print(img.dtype)
-
-        # Verify image shape
-        # print(img.shape)
-
-        # Check image values range
-        # print(img.min(), img.max())
-
-        # plt.imshow(img)
-        # plt.show()
-
         encode = face_recognition.face_encodings(img)[0]
         encodelist.append(encode)
-        # print(encode)
 
     return encodelist
 

@@ -239,24 +239,8 @@ while True:
                     trackers.append(tracker)
                     tracked_ids.append(getId)
 
-                    # if capture == 0:
-                    #     capture = 1
-
-                    # Retrieve person info from the database
-                    # if capture == 1:
-                    #     info = db.reference(f'Person/{getId}').get()
-                    #     names = str(info['name'])
-                    #     # title = str(info['title'])
-                    #     cvzone.putTextRect(img, f'Name: {names}', (x1, y1 - 10),
-                    #                        scale=1, thickness=2, colorR=(255, 0 , 0))
-                    #     # cvzone.putTextRect(img, f'Title: {title}', (x1, y1 - 20),
-                    #                           scale=1, thickness=2, colorR=(255, 0, 0))
-
             else:
                 print(f"Person {getId} is not scheduled to be in the room at this time.")
 
     cv2.imshow("Webcam", img)
     cv2.waitKey(1)
-
-# cap.release()
-# cv2.destroyAllWindows()

@@ -22,13 +22,6 @@ def csv_code(person_id, time_range, current_time, late_time, total_time_left, to
         }
     ]
 
-    # current_folder = os.path.dirname(os.path.abspath(__file__))
-    # csv_folder = os.path.join(current_folder, "CSV")
-    # os.makedirs(csv_folder, exist_ok=True)
-    # file_name = os.path.join(csv_folder, "test_Monitoring_log.csv")
-
-    # file_name = "test_Monitoring_log.csv"
-
     file_name = Path(__file__).parent / "test_Monitoring_log.csv"
 
     # Periksa apakah file sudah ada

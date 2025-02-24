@@ -102,12 +102,10 @@ def count_late_time(person_id, schedule_end_time):
     if time_take_tot > late[person_id]:
         late[person_id] = time_take_tot
         test = formating(time_take_tot)
-        # time_take_tot = late_time
 
     print(f"Late Time for2 {person_id}: {format_duration(late[person_id])}")
 
     return test
-    # return late[person_id]
 
 
 def start_left_timer(person_id):
@@ -116,11 +114,9 @@ def start_left_timer(person_id):
 
     if person_id not in exit_timers:
         exit_timers[person_id] = current_time
-        # print(f"Timer initialized for person {person_id} at {exit_timers}")
+
     else:
         left_time = (current_time - exit_timers[person_id]).total_seconds()
-        # print(f"Left time for person {current_time}: {exit_timers} seconds")
-        # print(f"Person {person_id} has been left for {left_time} seconds.")
 
         if left_time >= 60 and person_id not in left_warnings:
             print(f"WARNING: Person {person_id} has left for more than 10 minutes!")
@@ -142,7 +138,7 @@ def start_left_timer(person_id):
 
 def delete_left_timer(person_id):
     if person_id in exit_timers:
-        # Menghapus semua data terkait person_id
+
         del exit_timers[person_id]
         # del left_time
         if person_id in left_warnings:
@@ -164,7 +160,6 @@ def count_left_time(person_id):
 
 def count_left_time_total(person_id):
     left_time = start_left_timer(person_id)
-    # lefttotdb = formating(left_time)
 
     if person_id not in total_left_times:
         total_left_times[person_id] = left_time
@@ -186,7 +181,7 @@ def total_time(tracked_id):
     scheduled_duration = duration.get(tracked_id, 0)
     print(f"Duration ril: {scheduled_duration}")
     # Late time
-    late_time = late.get(tracked_id, 0)  # count_late_time(tracked_id, schedule_start_time)
+    late_time = late.get(tracked_id, 0) 
     print(f"Late Time ril: {late_time}")
     # Total time outside
     outside = total_left_times.get(tracked_id, 0)

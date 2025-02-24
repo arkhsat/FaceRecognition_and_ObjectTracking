@@ -33,8 +33,6 @@ def send_warning(person_id, alert_message):
                 bot.send_message(chat_id, f"Person {person_id}: {alert_message}")
     except Exception as e:
         print(f"Failed to send message: {e}")
-    # print(f"Sending warning: {alert_message}")
-    # bot.send_message(CHAT_ID, f"Person {person_id}: {alert_message}")
 
 
 # FOR DISPLAY CHAT
@@ -223,11 +221,6 @@ def send_pdf(current_date, getId, time_range, event):
         return
 
     try:
-        # pdf_url = ref.get()
-        # if not pdf_url:
-        #     print(f"No PDF URL found at {ref.path}")
-        #     return
-
         for chat_id in CHAT_ID:
             if chat_id:
                 print(f"Sending PDF to CHAT_ID {chat_id}")
@@ -254,15 +247,6 @@ def log_user(message):
     username = message.chat.username
     first_name = message.chat.first_name
     last_name = message.chat.last_name
-
-    # Save user data in Firebase
-    # ref = db.reference('UsersBOT')
-    # ref.set({
-    #     'CHAT_ID': user_id,
-    #     'username': username,
-    #     'first_name': first_name,
-    #     'last_name': last_name,
-    # })
 
     db.reference(f'UsersBOT/{user_id}').set({
         'CHAT_ID': user_id,

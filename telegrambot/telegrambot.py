@@ -41,7 +41,6 @@ def get_event_entered(current_date, getId, time_range, event):
     ref = db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}')
     data = ref.get()
 
-    # CHAT_ID = "5091903369"
     CHAT_ID = get_chat_id(getId)
 
     if data:
@@ -84,7 +83,6 @@ def get_event_left(current_date, getId, time_range, event):
     ref = db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}')
     data = ref.get()
 
-    # CHAT_ID = "5091903369"
     CHAT_ID = get_chat_id(getId)
 
     if data:
@@ -125,7 +123,6 @@ def get_event_return(current_date, getId, time_range, event):
     ref = db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}')
     data = ref.get()
 
-    # CHAT_ID = "5091903369"
     CHAT_ID = get_chat_id(getId)
 
     if data:
@@ -168,7 +165,6 @@ def get_event_end(current_date, getId, time_range, event):
     ref = db.reference(f'PersonEvents/{current_date}/{getId}/{time_range}/{event}')
     data = ref.get()
 
-    # CHAT_ID = "5091903369"
     CHAT_ID = get_chat_id(getId)
 
     if data:
